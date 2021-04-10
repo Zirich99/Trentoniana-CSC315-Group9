@@ -1,3 +1,6 @@
+#File imports
+from playsound import playsound
+
 #Append to a transcript file, where each index is a line of the transcript
 def addTranscript():
     #Add the file name you want to put in here
@@ -15,5 +18,12 @@ def addTranscript():
 
     return fullTranscript
 
+#Testing function for playing an audiofile
+def playAudioFile():
+    playsound('audiofile.mp3')
+
 
 addTranscript()
+
+#Put in an audio file name here
+playAudioFile()
