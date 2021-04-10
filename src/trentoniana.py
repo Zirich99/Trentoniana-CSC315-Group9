@@ -1,5 +1,5 @@
 #Append to a transcript file, where each index is a line of the transcript
-def main():
+def addTranscript():
     #Add the file name you want to put in here
     transcriptLines = []
     fname = open("filename.txt", "r")
@@ -9,4 +9,11 @@ def main():
 
     fname.close()
 
-    
+    #Join the lines of the file together
+    fullTranscript = "\n"
+    fullTranscript.join(transcriptLines)
+
+    return fullTranscript
+
+
+addTranscript()
