@@ -10,7 +10,7 @@ def addTranscript():
     fname.close()
 
     #Join the lines of the file together
-    fullTranscript = "\n"
+    fullTranscript = ""
     fullTranscript.join(transcriptLines)
 
     return fullTranscript
