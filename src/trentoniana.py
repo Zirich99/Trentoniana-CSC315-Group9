@@ -38,13 +38,13 @@ while userSelection != "exit":
     print("1. Add a transcript")
     print("2. Play an audio file")
     print("3. Exit the file addition software")
-    userSelection = input("Select one of the above numbers.")
+    userSelection = input("\nSelect one of the above numbers.")
 
     if userSelection == "1":
-        transcriptFileName = input("Please provide a filename, in .txt format, for input.")
+        transcriptFileName = input("\nPlease provide a filename, in .txt format, for input.")
         addTranscript(transcriptFileName)   
     if userSelection == "2":
-        audioFileName = input("Please provide a filename, in .mp3, for input.")
+        audioFileName = input("\nPlease provide a filename, in .mp3 or .wav, for input.")
         playAudioFile(audioFileName)
     if userSelection == "3":
         print("Exiting file addition software...")
