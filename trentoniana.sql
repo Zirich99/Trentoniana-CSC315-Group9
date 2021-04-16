@@ -96,46 +96,48 @@ add foreign keys between tables
 */
 
 ALTER TABLE ENTRY 
-ADD CONSTRAINT audio_id FOREIGN KEY (audio_id) REFERENCES AUDIO(audio_id), 
-ADD CONSTRAINT transcript_id FOREIGN KEY (transcript_id) REFERENCES TRANSCRIPT(transcript_id), 
-ADD CONSTRAINT c_name FOREIGN KEY (c_name) REFERENCES CATEGORY(c_name), 
-ADD CONSTRAINT e_username FOREIGN KEY (e_username) REFERENCES EDITOR(e_username)
+ADD CONSTRAINT audio_id FOREIGN KEY (audio_id) REFERENCES AUDIO(audio_id) ON DELETE CASCADE ON UPDATE CASCADE, 
+/* MAKE THIS CHANGE FOR ALL FOREIGN KEYS ^^^ */
+
+ADD CONSTRAINT transcript_id FOREIGN KEY (transcript_id) REFERENCES TRANSCRIPT(transcript_id) ON DELETE CASCADE ON UPDATE CASCADE, 
+ADD CONSTRAINT c_name FOREIGN KEY (c_name) REFERENCES CATEGORY(c_name) ON DELETE CASCADE ON UPDATE CASCADE, 
+ADD CONSTRAINT e_username FOREIGN KEY (e_username) REFERENCES EDITOR(e_username) ON DELETE CASCADE ON UPDATE CASCADE
 ;
 
 
 ALTER TABLE AUDIO 
-ADD CONSTRAINT audiofile_id FOREIGN KEY (audiofile_id) REFERENCES AUDIOFILE(audiofile_id), 
-ADD CONSTRAINT p_id FOREIGN KEY (p_id) REFERENCES PARTICIPANT(p_id), 
-ADD CONSTRAINT e_username FOREIGN KEY (e_username) REFERENCES EDITOR(e_username)
+ADD CONSTRAINT audiofile_id FOREIGN KEY (audiofile_id) REFERENCES AUDIOFILE(audiofile_id) ON DELETE CASCADE ON UPDATE CASCADE, 
+ADD CONSTRAINT p_id FOREIGN KEY (p_id) REFERENCES PARTICIPANT(p_id) ON DELETE CASCADE ON UPDATE CASCADE, 
+ADD CONSTRAINT e_username FOREIGN KEY (e_username) REFERENCES EDITOR(e_username) ON DELETE CASCADE ON UPDATE CASCADE
 ; 
 
 
 ALTER TABLE TRANSCRIPT 
-ADD CONSTRAINT transcriptfile_id FOREIGN KEY (transcriptfile_id) REFERENCES TRANSCRIPTFILE(transcriptfile_id), 
-ADD CONSTRAINT t_id FOREIGN KEY (t_id) REFERENCES TRANSCRIBER(t_id), 
-ADD CONSTRAINT e_username FOREIGN KEY (e_username) REFERENCES EDITOR(e_username)
+ADD CONSTRAINT transcriptfile_id FOREIGN KEY (transcriptfile_id) REFERENCES TRANSCRIPTFILE(transcriptfile_id) ON DELETE CASCADE ON UPDATE CASCADE, 
+ADD CONSTRAINT t_id FOREIGN KEY (t_id) REFERENCES TRANSCRIBER(t_id) ON DELETE CASCADE ON UPDATE CASCADE, 
+ADD CONSTRAINT e_username FOREIGN KEY (e_username) REFERENCES EDITOR(e_username) ON DELETE CASCADE ON UPDATE CASCADE
 ; 
 
 
 ALTER TABLE AUDIOFILE 
-ADD CONSTRAINT e_username FOREIGN KEY (e_username) REFERENCES EDITOR(e_username)
+ADD CONSTRAINT e_username FOREIGN KEY (e_username) REFERENCES EDITOR(e_username) ON DELETE CASCADE ON UPDATE CASCADE
 ;
 
 
 ALTER TABLE TRANSCRIPTFILE 
-ADD CONSTRAINT e_username FOREIGN KEY (e_username) REFERENCES EDITOR(e_username)
+ADD CONSTRAINT e_username FOREIGN KEY (e_username) REFERENCES EDITOR(e_username) ON DELETE CASCADE ON UPDATE CASCADE
 ;
 
 ALTER TABLE PARTICIPANT
-ADD CONSTRAINT e_username FOREIGN KEY (e_username) REFERENCES EDITOR(e_username)
+ADD CONSTRAINT e_username FOREIGN KEY (e_username) REFERENCES EDITOR(e_username) ON DELETE CASCADE ON UPDATE CASCADE
 ;
 
 ALTER TABLE TRANSCRIBER
-ADD CONSTRAINT e_username FOREIGN KEY (e_username) REFERENCES EDITOR(e_username)
+ADD CONSTRAINT e_username FOREIGN KEY (e_username) REFERENCES EDITOR(e_username) ON DELETE CASCADE ON UPDATE CASCADE
 ;
 
 ALTER TABLE EDITOR
-ADD CONSTRAINT a_username FOREIGN KEY (a_username) REFERENCES ADMIN(a_username)
+ADD CONSTRAINT a_username FOREIGN KEY (a_username) REFERENCES ADMIN(a_username) ON DELETE CASCADE ON UPDATE CASCADE
 ;
 
 /*
@@ -145,92 +147,76 @@ insert example data
 
 -- create admin accts
 INSERT INTO admin (a_username, a_password)
-VALUES ('Admin1', 'adminpassword1');
-INSERT INTO admin (a_username, a_password)
-VALUES ('Admin2', 'adminpassword2');
-INSERT INTO admin (a_username, a_password)
-VALUES ('Admin3', 'adminpassword3');
+VALUES 
+    ('Admin1', 'adminpassword1'),
+    ('Admin2', 'adminpassword2'),
+    ('Admin3', 'adminpassword3');
 
 -- create editor accts
 INSERT INTO editor (e_username, e_password, a_username)
-VALUES ('Editor1', 'editorpassword1', 'Admin1');
-INSERT INTO editor (e_username, e_password, a_username)
-VALUES ('Editor2', 'editorpassword2', 'Admin1');
-INSERT INTO editor (e_username, e_password, a_username)
-VALUES ('Editor3', 'editorpassword3', 'Admin2');
+VALUES 
+    ('Editor1', 'editorpassword1', 'Admin1'),
+    ('Editor2', 'editorpassword2', 'Admin1'),
+    ('Editor3', 'editorpassword3', 'Admin2');
 
 -- create categories
 INSERT INTO category(c_name)
-VALUES ('Jewish');
-INSERT INTO category(c_name)
-VALUES ('Oral History');
-INSERT INTO category(c_name)
-VALUES ('Family History');
-INSERT INTO category(c_name)
-VALUES ('Immigration');
+VALUES 
+    ('Jewish'),
+    ('Oral History'),
+    ('Family History'),
+    ('Immigration');
 
 -- create audiofile records
 INSERT INTO audiofile (audiofile_id, audio_filename, upload_date, e_username)
-VALUES (8, 'JHS08', '04/11/2021', 'Editor1');
-INSERT INTO audiofile (audiofile_id, audio_filename, upload_date, e_username)
-VALUES (1, 'Grace Womack and Jean Lynch', '04/11/2021', 'Editor1');
-INSERT INTO audiofile (audiofile_id, audio_filename, upload_date, e_username)
-VALUES (2, 'Old Trenton Oral History Sudol Edwards', '04/11/2021', 'Editor1');
+VALUES 
+    (8, 'JHS08', '04/11/2021', 'Editor1'),
+    (1, 'Grace Womack and Jean Lynch', '04/11/2021', 'Editor1'),    
+    (2, 'Old Trenton Oral History Sudol Edwards', '04/11/2021', 'Editor1');
 
 -- create participants 
 INSERT INTO participant(p_id, fullname, e_username)
-VALUES (1, 'JoeKlatzkin', 'Editor1');
-INSERT INTO participant(p_id, fullname, e_username)
-VALUES (2, 'IdaKlatzkin', 'Editor1');
-INSERT INTO participant
-(p_id, fullname, e_username)
-VALUES (3, 'Grace Womack', 'Editor1');
-INSERT INTO participant
-(p_id, fullname, e_username)
-VALUES (4, 'Jean Lynch', 'Editor1');
-INSERT INTO participant
-(p_id, fullname, e_username)
-VALUES (5, 'Sudol Edwards', 'Editor1');
+VALUES 
+    (1, 'JoeKlatzkin', 'Editor1'),
+    (2, 'IdaKlatzkin', 'Editor1'),
+    (3, 'Grace Womack', 'Editor1'),
+    (4, 'Jean Lynch', 'Editor1'),
+    (5, 'Sudol Edwards', 'Editor1');
 
 -- create audio records
 INSERT INTO audio (audio_id, audiofile_id, date_of_recording, p_id, e_username)
-VALUES (8, 8, '06/08/1988', 1, 'Editor1');
-INSERT INTO audio (audio_id, audiofile_id, date_of_recording, p_id, e_username)
-VALUES (1, 1, '04/14/2015', 3, 'Editor1');
-INSERT INTO audio (audio_id, audiofile_id, date_of_recording, p_id, e_username)
-VALUES (2, 2, '06/09/2016', 5, 'Editor1');
+VALUES 
+    (8, 8, '06/08/1988', 1, 'Editor1'),
+    (1, 1, '04/14/2015', 3, 'Editor1'),
+    (2, 2, '06/09/2016', 5, 'Editor1');
 
 -- create transcribers
 INSERT INTO transcriber (t_id, fullname, e_username)
-VALUES (1, 'John Smith', 'Editor1');
-INSERT INTO transcriber (t_id, fullname, e_username)
-VALUES (2, 'Jane Doe', 'Editor2');
-INSERT INTO transcriber (t_id, fullname, e_username)
-VALUES (3, 'Alexandra Rizzo', 'Editor3');
+VALUES 
+    (1, 'John Smith', 'Editor1'),
+    (2, 'Jane Doe', 'Editor2'),
+    (3, 'Alexandra Rizzo', 'Editor3');
 
 -- create transcriptfile records
 INSERT INTO transcriptfile (transcriptfile_id, transcript_filename, upload_date, e_username)
-VALUES (8, 'Klatzkin, Joe & Ida', '4/11/2021', 'Editor1');
-INSERT INTO transcriptfile (transcriptfile_id, transcript_filename, upload_date, e_username)
-VALUES (1, 'Grace Womack and Jean Lynch 4 14 15', '4/11/2021', 'Editor1');
-INSERT INTO transcriptfile (transcriptfile_id, transcript_filename, upload_date, e_username)
-VALUES (2, 'Sudol Edwards', '4/11/2021', 'Editor1');
+VALUES 
+    (8, 'Klatzkin, Joe & Ida', '4/11/2021', 'Editor1'),
+    (1, 'Grace Womack and Jean Lynch 4 14 15', '4/11/2021', 'Editor1'),
+    (2, 'Sudol Edwards', '4/11/2021', 'Editor1');
 
 -- create transcript records
 INSERT INTO transcript (transcript_id, transcriptfile_id, date_of_transcription, t_id, e_username)
-VALUES (8, 8, '2021-04-11', 1, 'Editor1');
-INSERT INTO transcript (transcript_id, transcriptfile_id, date_of_transcription, t_id, e_username)
-VALUES (1, 1, '2021-04-11', 1, 'Editor1');
-INSERT INTO transcript (transcript_id, transcriptfile_id, date_of_transcription, t_id, e_username)
-VALUES (2, 2, '2021-04-11', 2, 'Editor1');
+VALUES 
+    (8, 8, '2021-04-11', 1, 'Editor1'),
+    (1, 1, '2021-04-11', 1, 'Editor1'),
+    (2, 2, '2021-04-11', 2, 'Editor1');
 
 -- create entries
 INSERT INTO entry (entry_id, entry_name, audio_id, transcript_id, c_name, e_username)
-VALUES (8, 'JHS 08', 8, 8, 'Jewish', 'Editor1');
-INSERT INTO entry (entry_id, entry_name, audio_id, transcript_id, c_name, e_username)
-VALUES (1, 'Old Trenton Oral History, 4-14-15', 1, 1, 'Oral History', 'Editor1');
-INSERT INTO entry (entry_id, entry_name, audio_id, transcript_id, c_name, e_username)
-VALUES (2, 'Old Trenton Oral History Sudol Edwards', 2, 2, 'Oral History', 'Editor1');
+VALUES 
+    (8, 'JHS 08', 8, 8, 'Jewish', 'Editor1'),
+    (1, 'Old Trenton Oral History, 4-14-15', 1, 1, 'Oral History', 'Editor1'),
+    (2, 'Old Trenton Oral History Sudol Edwards', 2, 2, 'Oral History', 'Editor1');
 
 /*
 perform queries on populated database
