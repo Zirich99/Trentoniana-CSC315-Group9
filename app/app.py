@@ -53,6 +53,8 @@ import psycopg2
 from config import config
 from flask import Flask, render_template, request
  
+ #This function combines the connections searching for a file name in the entry table
+ #You will need to add a function for each query you want to make.
 def connect(query):
     """ Connect to the PostgreSQL database server """
     conn = None
@@ -67,9 +69,13 @@ def connect(query):
       
         # create a cursor
         cur = conn.cursor()
+
+        #The query that is automatically used to search through files
+        #Rewrite this query if you want a different result
+        file_selection = "select * from entry where entry_name = %s"
         
         # execute a query using fetchall()
-        cur.execute(query)
+        cur.execute(file_selection, (query,))
         rows = cur.fetchall()
 
        # close the communication with the PostgreSQL
