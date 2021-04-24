@@ -52,6 +52,7 @@ https://www.geeksforgeeks.org/python-using-for-loop-in-flask/
 import psycopg2
 from config import config
 from flask import Flask, render_template, request
+
  
  #This function combines the connections searching for a file name in the entry table
  #You will need to add a function for each query you want to make.
@@ -77,6 +78,7 @@ def connect(query):
         # execute a query using fetchall()
         cur.execute(query)
         rows = cur.fetchall()
+        
 
        # close the communication with the PostgreSQL
         cur.close()
@@ -89,6 +91,8 @@ def connect(query):
     # return the query result from fetchall()
     return rows
  
+ 
+       
 # app.py
 
 app = Flask(__name__)
@@ -118,8 +122,20 @@ def handle_data():
 
     # perform query
     rows = connect(query)
+    
 
     return render_template('my-result.html', rows=rows)
+    
+    def index():
+        # create cursor
+        cursor = conn.cursor()
+        # execute select statement to fetch data to be displayed in drop-down
+        cursor.execute('SELECT * FROM ENTRY')
+        # fetch all rows, store as set of tuples
+        rows = cursor.fetchall()
+       # render template
+    
+    
 
 if __name__ == '__main__':
     app.run(debug = True)
