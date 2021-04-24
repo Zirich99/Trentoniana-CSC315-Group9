@@ -14,4 +14,4 @@ CREATE TABLE TEST_TABLE (
 );
 
 -- you can say TEST_TABLE or TEST_TABLE(a, b, c) to specify columns
-\copy TEST_TABLE(a, b, c) FROM '/home/lion/Desktop/app/sample.csv' DELIMITER ',' CSV HEADER
+\copy TEST_TABLE(a, b, c) FROM '/home/lion/Desktop/stage-v-group-9/app/sample.csv' DELIMITER ',' CSV HEADER

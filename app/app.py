@@ -72,10 +72,10 @@ def connect(query):
 
         #The query that is automatically used to search through files
         #Rewrite this query if you want a different result
-        file_selection = "select * from entry where entry_name = %s"
-        
+        #file_selection = "select * from entry where entry_name = '%s';" % query
+
         # execute a query using fetchall()
-        cur.execute(file_selection, (query,))
+        cur.execute(query)
         rows = cur.fetchall()
 
        # close the communication with the PostgreSQL
@@ -102,7 +102,9 @@ def form():
 # handle form data
 @app.route('/form-handler', methods=['POST'])
 def handle_data():
-    rows = connect(request.form['query'])
+    userinput = request.form['query']
+    query = f"select * from entry where entry_name = '{userinput}';"
+    rows = connect(query)
 
     return render_template('my-result.html', rows=rows)
 
