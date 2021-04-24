@@ -102,8 +102,21 @@ def form():
 # handle form data
 @app.route('/form-handler', methods=['POST'])
 def handle_data():
-    userinput = request.form['query']
-    query = f"select * from entry where entry_name = '{userinput}';"
+    # user input fields
+    search = request.form['user_search']
+
+    # tables
+    trentoniana_tables = ['Entry', 'Category']
+    
+    tables = []
+    for table in trentoniana_tables:
+        if request.form[table]=='on': tables.append(table)
+
+
+    # final query
+    query = f"select * from {','.join(tables)};"
+
+    # perform query
     rows = connect(query)
 
     return render_template('my-result.html', rows=rows)

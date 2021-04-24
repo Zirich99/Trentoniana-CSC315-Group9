@@ -2,20 +2,52 @@
 
 <html>
     <head>
-        <title>Trentoniana: Search by Entry Name</title>
+        <title>Trentoniana</title>
     </head>
-    <body>
-	<h3>Search for records in the Trentoniana database by file name.</h3>
+    <body style="background-color:cornsilk;">
+	<h3 style="color:black;text-align:center;font-family=verdana;">
+	    Welcome to Trentoniana
+	</h3>
         <form action="/form-handler" method="POST">
             <div>
-		Enter the file name you are searching for.
-		<input type="text" name="query">
+	
+	<!-- Search option with radio buttons-->
+		<br>
+		Search by:
+		<br>
+		<input type="checkbox" name="Entry"/> Entry <br>
+		<input type="checkbox" name="Category"/> Category <br>
+		<input type ="radio"/> Category <br>
+		<input type ="radio"/> Date <br>
+		<input type ="radio"/> Audio <br>
+		<input type ="radio"/> Transcript <br>
+		<input type ="radio"/> Participant <br>
+		<input type ="radio"/> Editor <br>
+		
+	<!-- Search option drop-down style -->
+	
+	    <br><br>
+	    Search by:
+	    <br><br>
+	    <select>
+	    <option>Category</option>
+	    <option>Audio</option>
+	    <option>Transcript</option>
+	    <option>Date</option>
+	    <select>
+	    
+	   <!-- Search by user input -->
+	   <br><br>
+	   Search
+	    <input type ="text" name="user_search"/>
+		
             </div>
             <input type="submit" value="Submit">
         </form>
     </body>
 
     <!-- minimal styling -->
+    
     <style>
         form {
             margin: 1%;
