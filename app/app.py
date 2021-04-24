@@ -54,9 +54,9 @@ https://www.geeksforgeeks.org/python-using-for-loop-in-flask/
 import psycopg2
 from config import config
 from flask import Flask, render_template, request
+import sys
  
- #This function combines the connections searching for a file name in the entry table
- #You will need to add a function for each query you want to make.
+#You will need to add a function for each query you want to make.
 def connect(query):
     """ Connect to the PostgreSQL database server """
     conn = None
@@ -77,6 +77,11 @@ def connect(query):
         #file_selection = "select * from entry where entry_name = '%s';" % query
 
         # execute a query using fetchall()
+
+        print((20 * "-") + ("USER-ENTERED QUERY") + (20 * "-"))
+        print(query)
+        print((20 * "-") + (len("USER-ENTERED QUERY")*"-") + (20 * "-"))
+
         cur.execute(query)
         rows = cur.fetchall()
 
@@ -107,19 +112,20 @@ def handle_data():
     # user input fields
     search = request.form['user_search']
 
-    # tables
-    trentoniana_tables = ['Entry', 'Category']
+    # tables whose fields you can search for a user's substring
+
+    user_tables = [] # tables the user has chosen to search for their string
     
-    tables = []
-    for table in trentoniana_tables:
-        if request.form[table]=='on': tables.append(table)
+    tables = (', ').join(request.form.getlist("search_substr"))
+    if tables != '':
 
+        # final query
+        query = f"SELECT * FROM {tables};"
 
-    # final query
-    query = f"select * from {','.join(tables)};"
-
-    # perform query
-    rows = connect(query)
+        # perform query
+        rows = connect(query)
+    else:
+        rows = []
 
     return render_template('my-result.html', rows=rows)
 

@@ -10,23 +10,31 @@
 	</h3>
         <form action="/form-handler" method="POST">
             <div>
+
+			<!-- User input search string -->
+			<br><br>
+			<!-- Search <br> -->
+			
+			<input type ="text" placeholder="Search..." name="user_search"/>
+			<input type="submit" value="🔍︎">
+		</form>
 	
 	<!-- Search option with radio buttons-->
 		<br>
-		Search by:
 		<br>
-		<input type="checkbox" name="Entry"/> Entry <br>
-		<input type="checkbox" name="Category"/> Category <br>
-		<input type ="radio"/> Category <br>
-		<input type ="radio"/> Date <br>
-		<input type ="radio"/> Audio <br>
-		<input type ="radio"/> Transcript <br>
-		<input type ="radio"/> Participant <br>
-		<input type ="radio"/> Editor <br>
+		Search for string in:
+		<br>
+		<input type="checkbox" name="search_substr" value="ENTRY"/> Entry <br>
+		<input type="checkbox" name="search_substr" value="CATEGORY"/> Category <br>
+		<input type="checkbox" name="search_substr" value="AUDIO"/> Audio <br>
+		<!--<input type="checkbox" name="Audio"/> Audio <br>
+		<input type="checkbox" name="Transcript"/> Transcript <br>
+		<input type="checkbox" name="Participant"/> Participant <br>
+		<input type="checkbox" name="Transcriber"/> Transcriber <br>-->
 		
 	<!-- Search option drop-down style -->
 	
-	    <br><br>
+	    <!-- <br><br>
 	    Search by:
 	    <br><br>
 	    <select>
@@ -34,16 +42,8 @@
 	    <option>Audio</option>
 	    <option>Transcript</option>
 	    <option>Date</option>
-	    <select>
-	    
-	   <!-- Search by user input -->
-	   <br><br>
-	   Search
-	    <input type ="text" name="user_search"/>
-		
-            </div>
-            <input type="submit" value="Submit">
-        </form>
+	    <select> -->
+
     </body>
 
     <!-- minimal styling -->
