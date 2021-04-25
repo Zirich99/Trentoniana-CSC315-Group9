@@ -32,12 +32,13 @@
 		
 		
 		
-	<!-- Search option drop-down style -->
+	<!-- Search option drop-down style ->
 	 
 	    
-	    <br><br><!--Sort By:
-	    <!--<p align="center"> 
-	    <select>
+	    <br><br>Sort By:
+	    <!--<p align="center"-> 
+	    
+	    <SELECT name="Entry">
 	    <option>Entry</option>
 	    <option>Category</option>
 	    <option>Editor</option>
@@ -49,6 +50,25 @@
 	    </p>
 	    
 	   <!-- Search by user input -->
+	   
+	   
+	   
+	   
+	   <br><br>
+	   Sort By:<SELECT name="Entry">
+        {% for row in rows%}
+        <tr>
+            <OPTION value={{row.entry_id}}>{{row.entry_name}}</OPTION>
+           {%endfor%}
+           <tr>
+        </SELECT>
+	   
+	   
+	   
+	   
+	   
+	   
+	   
 	   <br><br>
 	   Search
 	    <input type ="text" name="user_search"/>

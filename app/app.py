@@ -123,17 +123,12 @@ def handle_data():
     # perform query
     rows = connect(query)
     
-
-    return render_template('my-result.html', rows=rows)
-    
-    def index():
-        # create cursor
-        cursor = conn.cursor()
-        # execute select statement to fetch data to be displayed in drop-down
-        cursor.execute('SELECT * FROM ENTRY')
-        # fetch all rows, store as set of tuples
-        rows = cursor.fetchall()
-       # render template
+    #added route to fetch data from entry table
+@app.route('/input')
+def input():
+    cur.execute("SELECT * FROM entry order by entry_name")
+    sort = cur.fetchall()
+    return render_template("my-result.html",sort=sort)
     
     
 
