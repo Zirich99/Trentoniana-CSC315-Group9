@@ -1,7 +1,7 @@
-t_id,fullname
-1,Editor1
-2,Editor2
-3,Editor3
-4,Rebecca Gervitz
-5,Isabella Guhl-Ehrdie
-6,Ellen Callahan
+t_id,fullname,e_username
+1,Editor1,Editor1
+2,Editor2,Editor1
+3,Editor3,Editor1
+4,Rebecca Gervitz,Editor1
+5,Isabella Guhl-Ehrdie,Editor1
+6,Ellen Callahan,Editor1
