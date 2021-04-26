@@ -1,74 +1,43 @@
 <!-- /templates/my-form.html-->
+
 <html>
     <head>
         <title>Trentoniana</title>
     </head>
     <body style="background-color:cornsilk;">
-	<h3 style="color:black;text-align:center;font-family=verdana;">
+	<h3 style="color:black;text-align:center;font-family=verdana:">
 	    Welcome to Trentoniana
 	</h3>
         <form action="/form-handler" method="POST">
             <div>
 	
-	<!-- Search option with radio buttons-->	    
-
-	    
-	    <!--<p style = "text-align-left;">Search by:-->
-	    Search By:<span style="padding-left:200px;"> 
-	    Sort By:<span style=padding-right:200px;">
+	<!-- Search option with radio buttons-->
 		<br>
+		Search by:
+		<br>
+		<input type="checkbox" name="Entry"/> Entry <br>
+		<input type="checkbox" name="Category"/> Category <br>
+		<input type ="radio"/> Category <br>
+		<input type ="radio"/> Date <br>
+		<input type ="radio"/> Audio <br>
+		<input type ="radio"/> Transcript <br>
+		<input type ="radio"/> Participant <br>
+		<input type ="radio"/> Editor <br>
 		
-		<input type="checkbox" name="Entry"/>Entry<br>
-		
-		<input type="checkbox" name="Category"/>Category<br>
-		
-		<input type="checkbox" name= "Editor"/>Editor<br>
-		
-		<input type="checkbox" name= "Audio"/>Audio<br>
-		
-		<input type="checkbox" name= "Transcript"/>Transcript<br>
-		<input type="checkbox" name= "Participant"/>Participant<br>
-		<input type="checkbox" name= "Date"/>Date<br>
-		
-		
-		
-	<!-- Search option drop-down style ->
-	 
-	    
-	    <br><br>Sort By:
-	    <!--<p align="center"-> 
-	    
-	    <SELECT name="Entry">
-	    <option>Entry</option>
+	<!-- Search option drop-down style -->
+	
+	    <br><br>
+	    Search by:
+	    <br><br>
+	    <select>
 	    <option>Category</option>
-	    <option>Editor</option>
+		
 	    <option>Audio</option>
 	    <option>Transcript</option>
-	    <option>Participant</option>
 	    <option>Date</option>
 	    <select>
-	    </p>
 	    
 	   <!-- Search by user input -->
-	   
-	   
-	   
-	   
-	   <br><br>
-	   Sort By:<SELECT name="Entry">
-        {% for row in rows%}
-        <tr>
-            <OPTION value={{row.entry_id}}>{{row.entry_name}}</OPTION>
-           {%endfor%}
-           <tr>
-        </SELECT>
-	   
-	   
-	   
-	   
-	   
-	   
-	   
 	   <br><br>
 	   Search
 	    <input type ="text" name="user_search"/>

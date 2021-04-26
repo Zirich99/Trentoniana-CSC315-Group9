@@ -25,15 +25,6 @@
     <body>
 	<table>
         <!-- nested for loops in jinja template -->
-        Sort By:<SELECT name="Entry">
-        {% for row in rows%}
-        <tr>
-            <OPTION value={{row.entry_id}}>{{row.entry_name}}</OPTION>
-           {%endfor%}
-           <tr>
-        </SELECT>
-        
-        <!--
 	{%for row in rows%}
 	    <tr>
 	    {%for col in row%}
@@ -41,7 +32,6 @@
 	    {%endfor%}
 	    </tr>
 	{%endfor%}
-	-->
 	</table>
     </body>
 
