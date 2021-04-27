@@ -73,7 +73,7 @@ SELECT
     EDITOR.e_password AS password
     
 FROM EDITOR
-    
+;    
         """
     ).strip() # removes leading and trailing whitespace from this string
 
@@ -155,33 +155,26 @@ def form():
 @app.route('/form-handler', methods=['POST'])
 def handle_data():
     # user input fields
-    user_search = request.form['username']
-
-    # tables whose fields you can search for a user's substring
+    user_login = request.form['username']
+    user_password = request.form['password']
     
-    '''tables = (', ').join(request.form.getlist("search_substr"))
-    if tables != '':
-        # final query
-        query = f"SELECT * FROM {tables};"
-        # perform query
-        rows = connect(query)
+    #Final query
+    query = f"SELECT e_username, e_password FROM EDITOR WHERE e_username LIKE '{user_login}' AND e_password LIKE '{user_password}'"
+    
+    #Perform the query
+    result = connect(query)
+    print(result)
+    header = ('e_username', 'e_password')
+    
+    if result == []:
+        return render_template('my-form.html', result=result)
     else:
-        rows = []'''
-        
-    print(search(user_search))
-
-    rows = search(user_search)
-    
-    #for row in rows:
-        #if rows[0] != nil && rows[1] != nil:
-            #print("Login successful")
-
-    return render_template('my-result.html', rows=rows)
+        return render_template('editor-dashboard.html', result=result)
     
 #Router for the dashboard
 @app.route("/dashboard")
 def dashboard():
-    return render_template("editor_dashboard.html")
+    return render_template("editor-dashboard.html")
 
 
 if __name__ == '__main__':
