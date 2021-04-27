@@ -142,9 +142,18 @@ ADD CONSTRAINT a_username FOREIGN KEY (a_username) REFERENCES ADMIN(a_username) 
 
 /*
 now that the Trentoniana database is fully formed,
-insert example data
-*/
+populate the database
+*/ 
 
-DECLARE @app_path VARCHAR(255) 
+\copy ADMIN(a_username, a_password) FROM '/home/lion/Desktop/stage-v-group-9/app/data/ADMIN.csv' DELIMITER ',' CSV HEADER
+\copy EDITOR(e_username, e_password, a_username) FROM '/home/lion/Desktop/stage-v-group-9/app/data/EDITOR.csv' DELIMITER ',' CSV HEADER
+\copy CATEGORY(c_name) FROM '/home/lion/Desktop/stage-v-group-9/app/data/CATEGORY.csv' DELIMITER ',' CSV HEADER
+\copy AUDIOFILE(audiofile_id, audio_filename, upload_date, e_username) FROM '/home/lion/Desktop/stage-v-group-9/app/data/AUDIOFILE.csv' DELIMITER ',' CSV HEADER
+\copy PARTICIPANT(p_id, fullname, e_username) FROM '/home/lion/Desktop/stage-v-group-9/app/data/PARTICIPANT.csv' DELIMITER ',' CSV HEADER
+\copy AUDIO(audio_id, audiofile_id, date_of_recording, p_id, e_username) FROM '/home/lion/Desktop/stage-v-group-9/app/data/AUDIO.csv' DELIMITER ',' CSV HEADER
+\copy TRANSCRIBER(t_id, fullname, e_username) FROM '/home/lion/Desktop/stage-v-group-9/app/data/TRANSCRIBER.csv' DELIMITER ',' CSV HEADER
+\copy TRANSCRIPTFILE(transcriptfile_id, transcript_filename, upload_date, e_username) FROM '/home/lion/Desktop/stage-v-group-9/app/data/TRANSCRIPTFILE.csv' DELIMITER ',' CSV HEADER
+\copy TRANSCRIPT(transcript_id, transcriptfile_id, date_of_transcription, t_id, e_username) FROM '/home/lion/Desktop/stage-v-group-9/app/data/TRANSCRIPT.csv' DELIMITER ',' CSV HEADER
+\copy ENTRY(entry_id, entry_name, audio_id, transcript_id, c_name, e_username) FROM '/home/lion/Desktop/stage-v-group-9/app/data/ENTRY.csv' DELIMITER ',' CSV HEADER
 
-\copy TEST_TABLE(a, b, c) FROM '/home/lion/Desktop/stage-v-group-9/app/sample.csv' DELIMITER ',' CSV HEADER
+\c lion

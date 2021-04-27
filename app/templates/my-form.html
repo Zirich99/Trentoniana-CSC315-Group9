@@ -5,46 +5,46 @@
         <title>Trentoniana</title>
     </head>
     <body style="background-color:cornsilk;">
-	<h3 style="color:black;text-align:center;font-family=verdana:">
+	<h3 style="color:black;text-align:center;font-family=verdana;">
 	    Welcome to Trentoniana
 	</h3>
         <form action="/form-handler" method="POST">
             <div>
+
+			<!-- Sort by drop-down -->
+			<br><br>
+			<!-- Sort by <br> -->
+			Sort By:
+			<table><td>
+			<select name="sortchoice" method="POST">
+			<option>Date</option>
+			<option>Category</option>
+			<option>Alphabetically</option>
+			</select></td></table>
+			<input type="submit" value="Sort">
+		</form>
 	
-	<!-- Search option with radio buttons-->
+	<!-- Search option with radio buttons
 		<br>
-		Search by:
 		<br>
-		<input type="checkbox" name="Entry"/> Entry <br>
-		<input type="checkbox" name="Category"/> Category <br>
-		<input type ="radio"/> Category <br>
-		<input type ="radio"/> Date <br>
-		<input type ="radio"/> Audio <br>
-		<input type ="radio"/> Transcript <br>
-		<input type ="radio"/> Participant <br>
-		<input type ="radio"/> Editor <br>
-		
+		Search for string in:
+		<br>
+		<input type="checkbox" name="search_substr" value="ENTRY"/> Entry <br>
+		<input type="checkbox" name="search_substr" value="CATEGORY"/> Category <br>
+		<input type="checkbox" name="search_substr" value="AUDIO"/> Audio <br>
+	-->
 	<!-- Search option drop-down style -->
 	
-	    <br><br>
+	    <!-- <br><br>
 	    Search by:
 	    <br><br>
 	    <select>
 	    <option>Category</option>
-		
 	    <option>Audio</option>
 	    <option>Transcript</option>
 	    <option>Date</option>
-	    <select>
-	    
-	   <!-- Search by user input -->
-	   <br><br>
-	   Search
-	    <input type ="text" name="user_search"/>
-		
-            </div>
-            <input type="submit" value="Submit">
-        </form>
+	    <select> -->
+
     </body>
 
     <!-- minimal styling -->
