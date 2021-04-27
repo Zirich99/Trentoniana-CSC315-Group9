@@ -56,9 +56,9 @@ from config import config
 from flask import Flask, render_template, request
 
 # Functions to handle user input
-def usersearch(userstr):
-    # input: substr the user enters into the search bar
-    # output: ENTRYs containing the user's search string in any of its fields
+def usersearch(header, rows, userstr):
+    # input: rows returned from a previous query and the substring to search for
+    # output: rows containing the user's search string in any of their fields
     
     # This function searches for user's input string in the fields:
     # ENTRY.entry_name
@@ -69,48 +69,13 @@ def usersearch(userstr):
     # TRANSCRIBER.fullname
     # where all these values are joined by the ENTRY they relate to
 
-    query = (
-        """
-SELECT
-    ENTRY.entry_name AS entry,
-    CATEGORY.c_name AS category,
-    AUDIOFILE.audio_filename AS audio,
-    PARTICIPANT.fullname AS participant,
-    TRANSCRIPTFILE.transcript_filename AS transcript,
-    TRANSCRIBER.fullname AS transcriber
-
-FROM ENTRY
-
--- get category of entry
-JOIN CATEGORY
-    ON ENTRY.c_name = CATEGORY.c_name
-
--- get audio filename and participants
-JOIN AUDIO
-    ON ENTRY.audio_id = AUDIO.audio_id
-JOIN AUDIOFILE
-    ON AUDIO.audiofile_id = AUDIOFILE.audiofile_id
-JOIN PARTICIPANT
-    ON AUDIO.p_id = PARTICIPANT.p_id
-
--- get transcript filename and transcriber
-JOIN TRANSCRIPT
-    ON ENTRY.transcript_id = TRANSCRIPT.transcript_id
-JOIN TRANSCRIPTFILE
-    ON TRANSCRIPT.transcriptfile_id = TRANSCRIPTFILE.transcriptfile_id       
-JOIN TRANSCRIBER
-    ON TRANSCRIPT.t_id = TRANSCRIBER.t_id
-;
-        """
-    ).strip() # removes leading and trailing whitespace from this string
-
-    rows = connect(query) # searchable data
-
-    if userstr=='':
+    if userstr=='': 
+        rows.insert(0, header)
+        pass # if user searched for nothing, just return all rows
         # user searched for empty string
-        msg = "You did not search for anything" # message output to user
-        row = (msg,) # each row is a tuple of attrs, here just the message
-        rows = [row,] # list of rows, contains only the row with the single message item
+        #msg = "You did not search for anything" # message output to user
+        #row = (msg,) # each row is a tuple of attrs, here just the message
+        #rows = [row,] # list of rows, contains only the row with the single message item
     else:
         # get rows containing the user string
         rows = [row for row in rows if userstr in ''.join(row)]
@@ -121,7 +86,7 @@ JOIN TRANSCRIBER
             # highlight matches by surrounding them with < >
             rows = [(attr.replace(userstr, f'<{userstr}>') for attr in row) for row in rows]
 
-            header = ('Title', 'Category', 'Audio File', 'Participant', 'Transcript File', 'Transcriber')
+            #header = ('Title', 'Category', 'Audio File', 'Participant', 'Transcript File', 'Transcriber')
             #cols = zip(*rows)
             #header = (attr+('_'*len(max(col,key=len))) for (attr,col) in zip(header,cols))
             rows.insert(0, header)
@@ -133,7 +98,7 @@ JOIN TRANSCRIBER
 
     return rows
 
-def usersort(usersel):
+def usersort(usersel, reverse):
     # input: user selection of what to sort by, chosen from dropdown
     # output: rows sorted by the chosen criteria
 
@@ -146,12 +111,15 @@ def usersort(usersel):
                 ('TRANSCRIBER.fullname', 'Transcriber')]
 
     # modify header to show which col the user selected to sort by
-    header = tuple(f"Sorted by {col}" if opt==usersel else col for (opt,col) in options)
+    rev = ' (reversed)' if reverse else ''
+    header = tuple(f"Sorted by {col}{rev}" if opt==usersel else col for (opt,col) in options)
 
-    # make sure all user selection options are listed in options list,
-    # catches bugs if new options are added
-    if not any("Sorted by" in col for col in header):
-        raise NotImplementedError(f"looks like you forgot to add option '{usersel}' to in the usersort() function")
+    # make sure all options are accounted for (except sorting by nothing)
+    if usersel != '(SELECT NULL)':
+        # make sure all user selection options are listed in options list,
+        # catches bugs if new options are added
+        if not any("Sorted by" in col for col in header):
+            raise NotImplementedError(f"looks like you forgot to add option '{usersel}' to in the usersort() function")
 
     query = (
         f"""
@@ -185,7 +153,7 @@ JOIN TRANSCRIPTFILE
 JOIN TRANSCRIBER
     ON TRANSCRIPT.t_id = TRANSCRIBER.t_id
 
-ORDER BY {usersel}
+ORDER BY {usersel} {'DESC' if reverse else 'ASC'}
 ;
         """
     ).strip() # removes leading and trailing whitespace from this string
@@ -193,9 +161,9 @@ ORDER BY {usersel}
     rows = connect(query)
 
     # add column names
-    rows.insert(0, header)
+    #rows.insert(0, header)
 
-    return rows
+    return rows, header
 
 def connect(query):
     """ Connect to the PostgreSQL database server """
@@ -249,22 +217,35 @@ def form():
 # handle form data
 @app.route('/form-handler', methods=['POST']) # the page the this function leads to 
 def handle_data():
-    if 'submit_search' in request.form:
-        userstr = request.form['search'] # get user search string
-        rows = usersearch(userstr)
-    elif 'submit_sort' in request.form:
+    
+    if 'submit_search' in request.form: #or 'submit_sort' in request.form:
         usersel = request.form['sort'] # get user sort selection
-        rows = usersort(usersel)
+        userrev = True if 'reverse' in request.form else False
+        sorted_rows, header = usersort(usersel, userrev) # sort db
+        userstr = request.form['search'] # get user search string
+        rows = usersearch(header, sorted_rows, userstr) 
 
     return render_template('my-result.html', rows=rows)
 
 if __name__ == '__main__':
     app.run(debug = True)
 
+    # in case of:
+    # OSError: [Errno 98] Address already in use
+    # do the following:
+    # $ ps -fA | grep python3
+    # $ kill -9 pid
+    #   where pid is the pid of the orhpaned Flask process
+    # $ flask run
+    # should be back to normal
 
 
 
-'''tables = (', ').join(request.form.getlist("search_substr"))
+
+'''
+might make use of this later
+
+tables = (', ').join(request.form.getlist("search_substr"))
     if tables != '':
 
         # final query
