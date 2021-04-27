@@ -52,6 +52,58 @@ https://www.geeksforgeeks.org/python-using-for-loop-in-flask/
 import psycopg2
 from config import config
 from flask import Flask, render_template, request
+
+def search(userstr):
+    # input: substr the user enters into the search bar
+    # output: ENTRYs containing the user's search string in any of its fields
+    
+    # This function searches for user's input string in the fields:
+    # ENTRY.entry_name
+    # AUDIOFILE.audiofile_name
+    # TRANSCRIPTFILE.transcriptfile_name
+    # CATEGORY.c_name
+    # PARTICIPANT.fullname
+    # TRANSCRIBER.fullname
+    # where all these values are joined by the ENTRY they relate to
+
+    query = (
+        """
+SELECT
+    EDITOR.e_username AS username,
+    EDITOR.e_password AS password
+    
+FROM EDITOR
+    
+        """
+    ).strip() # removes leading and trailing whitespace from this string
+
+    rows = connect(query)
+
+    # get rows containing the user string
+    rows = [row for row in rows if userstr in ''.join(row) and userstr!='']
+
+    if userstr=='':
+        # user searched for empty string
+        msg = [(f"Please enter a username and a password.")]
+        rows.insert(0, msg)
+    elif rows:
+        # matches were found
+
+        # highlight matches by surrounding them with < >
+        rows = [(attr.replace(userstr, f'<{userstr}>') for attr in row) for row in rows]
+
+        header = ('Username', 'Password')
+        #cols = zip(*rows)
+        #header = (attr+('_'*len(max(col,key=len))) for (attr,col) in zip(header,cols))
+        rows.insert(0, header)
+    elif rows==[]:  
+        # no matches were found
+        msg = [(f"Your username or password was incorrect.")]
+        rows.insert(0, msg)
+    else:
+        exit("ERROR: Your database has an error. Please double check it.")
+
+    return rows
  
  #This function combines the connections searching for a file name in the entry table
  #You will need to add a function for each query you want to make.
@@ -103,23 +155,34 @@ def form():
 @app.route('/form-handler', methods=['POST'])
 def handle_data():
     # user input fields
-    search = request.form['user_search']
+    user_search = request.form['username']
 
-    # tables
-    trentoniana_tables = ['Entry', 'Category']
+    # tables whose fields you can search for a user's substring
     
-    tables = []
-    for table in trentoniana_tables:
-        if request.form[table]=='on': tables.append(table)
+    '''tables = (', ').join(request.form.getlist("search_substr"))
+    if tables != '':
+        # final query
+        query = f"SELECT * FROM {tables};"
+        # perform query
+        rows = connect(query)
+    else:
+        rows = []'''
+        
+    print(search(user_search))
 
-
-    # final query
-    query = f"select * from {','.join(tables)};"
-
-    # perform query
-    rows = connect(query)
+    rows = search(user_search)
+    
+    #for row in rows:
+        #if rows[0] != nil && rows[1] != nil:
+            #print("Login successful")
 
     return render_template('my-result.html', rows=rows)
+    
+#Router for the dashboard
+@app.route("/dashboard")
+def dashboard():
+    return render_template("editor_dashboard.html")
+
 
 if __name__ == '__main__':
     app.run(debug = True)
