@@ -104,31 +104,32 @@ JOIN TRANSCRIBER
         """
     ).strip() # removes leading and trailing whitespace from this string
 
-    rows = connect(query)
-
-    # get rows containing the user string
-    rows = [row for row in rows if userstr in ''.join(row) and userstr!='']
+    rows = connect(query) # searchable data
 
     if userstr=='':
         # user searched for empty string
-        msg = [(f"You did not search for anything")]
-        rows.insert(0, msg)
-    elif rows:
-        # matches were found
-
-        # highlight matches by surrounding them with < >
-        rows = [(attr.replace(userstr, f'<{userstr}>') for attr in row) for row in rows]
-
-        header = ('Entry', 'Category', 'Audio', 'Participant', 'Transcript', 'Transcriber')
-        #cols = zip(*rows)
-        #header = (attr+('_'*len(max(col,key=len))) for (attr,col) in zip(header,cols))
-        rows.insert(0, header)
-    elif rows==[]:  
-        # no matches were found
-        msg = [(f"No entries were found containing your search '{userstr}'")]
-        rows.insert(0, msg)
+        msg = "You did not search for anything" # message output to user
+        row = (msg,) # each row is a tuple of attrs, here just the message
+        rows = [row,] # list of rows, contains only the row with the single message item
     else:
-        exit("idk what this case means")
+        # get rows containing the user string
+        rows = [row for row in rows if userstr in ''.join(row)]
+    
+        if rows:
+            # matches were found
+
+            # highlight matches by surrounding them with < >
+            rows = [(attr.replace(userstr, f'<{userstr}>') for attr in row) for row in rows]
+
+            header = ('Entry', 'Category', 'Audio', 'Participant', 'Transcript', 'Transcriber')
+            #cols = zip(*rows)
+            #header = (attr+('_'*len(max(col,key=len))) for (attr,col) in zip(header,cols))
+            rows.insert(0, header)
+        else:
+            # no matches were found
+            msg = f"No results were found containing your search '{userstr}'" # message output to user
+            row = (msg,) # each row is a tuple of attrs, here just the message
+            rows = [row,] # list of rows, contains only the row with the single message item
 
     return rows
 
@@ -182,7 +183,7 @@ def form():
     return render_template('my-form.html')
 
 # handle form data
-@app.route('/form-handler', methods=['POST'])
+@app.route('/form-handler', methods=['POST']) # the page the this function leads to 
 def handle_data():
     # user input fields
     user_search = request.form['search']
