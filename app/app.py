@@ -186,15 +186,33 @@ def form():
 def handle_data():
     # user input fields
     user_select = request.form['sortchoice']
-    print()
+    if user_select == "Category":
+        query = """
+        SELECT 
+        entry_name, ENTRY.c_name
+        FROM CATEGORY 
+        JOIN ENTRY ON ENTRY.c_name= CATEGORY.c_name
+
+        SELECT (SELECT entry_name, ENTRY.c_name
+        FROM CATEGORY)
+        (SELECT audio_id, ENTRY.audio_id
+        FROM CATEGORY);"""
+        
+        
+        rows = connect(query)
+        header = ("""'entry_name', 'c_name', 'audio_filename',
+        'participant_fullname', 'transcript_filename', 
+        'transcriber_fullname'""")
     
-    print(user_select)
-    query = "SELECT * FROM ENTRY;"
-    rows = connect(query)
-    header = ('entry_name', 'c_name', 'audio_filename','participant_fullname', 'transcript_filename', 'transcriber_fullname')
-    #rows = search(user_select)
+        
     return render_template('my-result.html', rows=rows)
    
+#Route to about us page
+
+@app.route('/about-us', methods=['POST'])
+def about_but():
+    return render_template('about.html')
+
 
 if __name__ == '__main__':
     app.run(debug = True)
