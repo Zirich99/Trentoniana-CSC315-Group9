@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+
+<style>
+	:root {
+		--trent-red:rgb(109, 33, 33);
+		--trent-white:rgb(242, 251, 255);
+		--trent-black:rgb(31, 31, 31);
+	}
+
+	body {
+		background-color: var(--trent-red);
+		color: var(--trent-white);
+		text-align:center;
+		font-family:Arial, Helvetica, sans-serif;
+	}
+
+	/* Add a black background color to the top navigation */
+	.topnav {
+		background-color: #333;
+		overflow: hidden;
+	}
+
+	/* Style the links inside the navigation bar */
+	.topnav a {
+		float: left;
+		color: var(--trent-white);
+		text-align: center;
+		padding: 14px 16px;
+		text-decoration: none;
+		font-size: 17px;
+	}
+
+	/* Change the color of links on hover */
+	.topnav a:hover {
+		background-color: var(--trent-black);
+		color: white;
+	}
+
+	/* Add a color to the active/current link */
+	.topnav a.active {
+		background-color: var(--trent-black);
+		color: var(--trent-white);
+	}
+
+	form {
+            margin: 1%;
+    }
+
+	div {
+		margin: 1% 0;
+	}
+</style>
+
+<html>
+
+    <body>
+		<h1>
+			The Trentoniana Room
+		</h1>
+    </body>
+
+	<div class="topnav">
+		<a class="active" href="#home">Home</a>
+		<a href="#search">Search</a>
+		<a href="#login">Login</a>
+	</div> 
+
+</html>

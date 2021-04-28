@@ -212,7 +212,8 @@ app = Flask(__name__)
 # serve form web page
 @app.route("/")
 def form():
-    return render_template('my-form.html')
+    return render_template('home.html')
+    return render_template('user-form.html')
 
 # handle form data
 @app.route('/form-handler', methods=['POST']) # the page the this function leads to 
@@ -225,7 +226,7 @@ def handle_data():
         userstr = request.form['search'] # get user search string
         rows = usersearch(header, sorted_rows, userstr) 
 
-    return render_template('my-result.html', rows=rows)
+    return render_template('user-result.html', rows=rows)
 
 if __name__ == '__main__':
     app.run(debug = True)
