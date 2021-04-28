@@ -52,10 +52,11 @@ https://www.geeksforgeeks.org/python-using-for-loop-in-flask/
 import psycopg2
 from config import config
 from flask import Flask, render_template, request
-
-def search(userstr):
-    # input: substr the user enters into the search bar
-    # output: ENTRYs containing the user's search string in any of its fields
+    
+# Functions to handle user input
+def usersearch(header, rows, userstr):
+    # input: rows returned from a previous query and the substring to search for
+    # output: rows containing the user's search string in any of their fields
     
     # This function searches for user's input string in the fields:
     # ENTRY.entry_name
@@ -66,44 +67,96 @@ def search(userstr):
     # TRANSCRIBER.fullname
     # where all these values are joined by the ENTRY they relate to
 
-    query = (
-        """
-SELECT
-    EDITOR.e_username AS username,
-    EDITOR.e_password AS password
+    if userstr=='': 
+        rows.insert(0, header)
+        pass # if user searched for nothing, just return all rows
+        # user searched for empty string
+        #msg = "You did not search for anything" # message output to user
+        #row = (msg,) # each row is a tuple of attrs, here just the message
+        #rows = [row,] # list of rows, contains only the row with the single message item
+    else:
+        # get rows containing the user string
+        rows = [row for row in rows if userstr in ''.join(row)]
     
-FROM EDITOR
-;    
+        if rows:
+            # matches were found
+
+            # highlight matches by surrounding them with < >
+            rows = [(attr.replace(userstr, f'<{userstr}>') for attr in row) for row in rows]
+
+            #header = ('Title', 'Category', 'Audio File', 'Participant', 'Transcript File', 'Transcriber')
+            #cols = zip(*rows)
+            #header = (attr+('_'*len(max(col,key=len))) for (attr,col) in zip(header,cols))
+            rows.insert(0, header)
+        else:
+            # no matches were found
+            msg = f"No results were found containing your search '{userstr}'" # message output to user
+            row = (msg,) # each row is a tuple of attrs, here just the message
+            rows = [row,] # list of rows, contains only the row with the single message item
+
+    return rows
+    
+def usersort(usersel, reverse):
+    # input: user selection of what to sort by, chosen from dropdown
+    # output: rows sorted by the chosen criteria
+
+    # list of pairs of options with their respective column names
+    options =  [('ENTRY.entry_name', 'Title'),
+                ('CATEGORY.c_name', 'Category'),
+                ('AUDIOFILE.audio_filename', 'Audio File'),
+                ('PARTICIPANT.fullname', 'Participant'),
+                ('TRANSCRIPTFILE.transcript_filename', 'Transcript File'),
+                ('TRANSCRIBER.fullname', 'Transcriber')]
+
+    # modify header to show which col the user selected to sort by
+    rev = ' (reversed)' if reverse else ''
+    header = tuple(f"Sorted by {col}{rev}" if opt==usersel else col for (opt,col) in options)
+
+    # make sure all options are accounted for (except sorting by nothing)
+    if usersel != '(SELECT NULL)':
+        # make sure all user selection options are listed in options list,
+        # catches bugs if new options are added
+        if not any("Sorted by" in col for col in header):
+            raise NotImplementedError(f"looks like you forgot to add option '{usersel}' to in the usersort() function")
+
+    query = (
+        f"""
+SELECT
+    ENTRY.entry_name AS entry,
+    CATEGORY.c_name AS category,
+    AUDIOFILE.audio_filename AS audio,
+    PARTICIPANT.fullname AS participant,
+    TRANSCRIPTFILE.transcript_filename AS transcript,
+    TRANSCRIBER.fullname AS transcriber
+FROM ENTRY
+-- get category of entry
+JOIN CATEGORY
+    ON ENTRY.c_name = CATEGORY.c_name
+-- get audio filename and participants
+JOIN AUDIO
+    ON ENTRY.audio_id = AUDIO.audio_id
+JOIN AUDIOFILE
+    ON AUDIO.audiofile_id = AUDIOFILE.audiofile_id
+JOIN PARTICIPANT
+    ON AUDIO.p_id = PARTICIPANT.p_id
+-- get transcript filename and transcriber
+JOIN TRANSCRIPT
+    ON ENTRY.transcript_id = TRANSCRIPT.transcript_id
+JOIN TRANSCRIPTFILE
+    ON TRANSCRIPT.transcriptfile_id = TRANSCRIPTFILE.transcriptfile_id       
+JOIN TRANSCRIBER
+    ON TRANSCRIPT.t_id = TRANSCRIBER.t_id
+ORDER BY {usersel} {'DESC' if reverse else 'ASC'}
+;
         """
     ).strip() # removes leading and trailing whitespace from this string
 
     rows = connect(query)
 
-    # get rows containing the user string
-    rows = [row for row in rows if userstr in ''.join(row) and userstr!='']
+    # add column names
+    #rows.insert(0, header)
 
-    if userstr=='':
-        # user searched for empty string
-        msg = [(f"Please enter a username and a password.")]
-        rows.insert(0, msg)
-    elif rows:
-        # matches were found
-
-        # highlight matches by surrounding them with < >
-        rows = [(attr.replace(userstr, f'<{userstr}>') for attr in row) for row in rows]
-
-        header = ('Username', 'Password')
-        #cols = zip(*rows)
-        #header = (attr+('_'*len(max(col,key=len))) for (attr,col) in zip(header,cols))
-        rows.insert(0, header)
-    elif rows==[]:  
-        # no matches were found
-        msg = [(f"Your username or password was incorrect.")]
-        rows.insert(0, msg)
-    else:
-        exit("ERROR: Your database has an error. Please double check it.")
-
-    return rows
+    return rows, header
  
  #This function combines the connections searching for a file name in the entry table
  #You will need to add a function for each query you want to make.
@@ -154,6 +207,8 @@ def form():
 # handle form data
 @app.route('/form-handler', methods=['POST'])
 def handle_data():
+    # error field
+    error = None
     # user input fields
     user_login = request.form['username']
     user_password = request.form['password']
@@ -163,18 +218,30 @@ def handle_data():
     
     #Perform the query
     result = connect(query)
-    print(result)
-    header = ('e_username', 'e_password')
     
     if result == []:
-        return render_template('my-form.html', result=result)
+        error = 'Invalid username or password'
+        print("ERROR!")
+        return render_template('my-form.html', error=error)
     else:
+        print("CORRECT!")
         return render_template('editor-dashboard.html', result=result)
     
 #Router for the dashboard
-@app.route("/dashboard")
+@app.route("/dashboard", methods=['GET', 'POST'])
 def dashboard():
-    return render_template("editor-dashboard.html")
+    if 'submit_search' in request.form: #or 'submit_sort' in request.form:
+        print("Search request received")
+        usersel = request.form['sort'] # get user sort selection
+        print("User sort")
+        userrev = True if 'reverse' in request.form else False
+        sorted_rows, header = usersort(usersel, userrev) # sort db
+        userstr = request.form['search'] # get user search string
+        print("Found user string")
+        rows = usersearch(header, sorted_rows, userstr) 
+        return render_template('my-result.html', rows=rows)
+        
+    return render_template('editor-dashboard.html')
 
 
 if __name__ == '__main__':
