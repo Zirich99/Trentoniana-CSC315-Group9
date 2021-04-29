@@ -52,6 +52,7 @@ https://www.geeksforgeeks.org/python-using-for-loop-in-flask/
 import psycopg2
 from config import config
 from flask import Flask, render_template, request
+from datetime import date
     
 # Functions to handle user input
 def usersearch(header, rows, userstr):
@@ -221,27 +222,52 @@ def handle_data():
     
     if result == []:
         error = 'Invalid username or password'
-        print("ERROR!")
         return render_template('my-form.html', error=error)
     else:
-        print("CORRECT!")
         return render_template('editor-dashboard.html', result=result)
     
 #Router for the dashboard
 @app.route("/dashboard", methods=['GET', 'POST'])
 def dashboard():
     if 'submit_search' in request.form: #or 'submit_sort' in request.form:
-        print("Search request received")
         usersel = request.form['sort'] # get user sort selection
-        print("User sort")
         userrev = True if 'reverse' in request.form else False
         sorted_rows, header = usersort(usersel, userrev) # sort db
         userstr = request.form['search'] # get user search string
-        print("Found user string")
         rows = usersearch(header, sorted_rows, userstr) 
         return render_template('my-result.html', rows=rows)
+    elif 'submit_add' in request.form:
+        return render_template("editor-add.html")
+    #elif 'submit_delete' in request.form:
+        #return render_template("editor-delete.html")
+    #elif 'submit_update' in request.form:
+        #return render_template("editor-update.html")
         
     return render_template('editor-dashboard.html')
+    
+@app.route("/add", methods=['GET','POST'])
+def add():
+    if 'submit_audio' in request.form:
+        #We are adding an audio file to the database.
+        #User input fields
+        user_audio_id = request.form['AudiofileID']
+        user_audio_filename = request.form['Audio_filename']
+        user_date = request.form['Date_of_recording']
+        user_participants = request.form['Audio_participants']
+        #Predefined parameters collected by system
+        today = date.today()
+        d1 = today.strftime("%d%m%Y")
+        #Query to add into the audio file
+        query = f"INSERT INTO Audiofile VALUES('{user_audio_id}', '{user_audio_filename}', '{user_date}', ('Editor1'));"
+        print(query)
+        #Perform the query
+        result = connect(query)
+        if result == []:
+           #Some error occurred with the addition. Reset back to the page.
+           return render_template('editor-add.html')
+        else:
+            return render_template('my-result.html')
+    return render_template('editor-add.html')
 
 
 if __name__ == '__main__':
