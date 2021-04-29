@@ -1,0 +1,21 @@
+<html>
+    <head>
+        <title>Editor</title>
+    </head>
+    <body style="background-color:cornsilk;">
+	<h3 style="color:black;text-align:center;font-family=verdana;">
+	    Add Into the Database
+	</h3>
+	    <form action="{{url_for('add')}}" method="POST">
+             <div>
+			<br><br>
+			<h3>Select The Database You Are Adding To</h3>
+			<label for="Audio">Audio</label><br>
+			<input type ="text" name="AudiofileID" placeholder="Audio File ID"/><br>
+			<input type ="text" name="Audio_filename" placeholder="Audio Filename"/><br>
+			<input type ="text" name="Date_of_recording" placeholder="Date of Recording"/><br>
+			<input type ="text" name="Audio_participants" placeholder="Participants"/><br>
+			<input type="submit" name="submit_audio"><br><br>
+		</form>
+	</body>
+</html>
