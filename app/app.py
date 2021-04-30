@@ -191,7 +191,18 @@ def connect(query):
         print((20 * "-") + (len("USER-ENTERED QUERY")*"-") + (20 * "-"))
 
         cur.execute(query)
-        rows = cur.fetchall()
+
+        if 'DELETE' in query.upper():
+            
+            num_rows_deleted = cur.rowcount
+            if num_rows_deleted > 0:
+                rows = [(f"The following query was run:\n{query} deleted {num_rows_deleted} rows",)]
+            else:
+                rows = [("There was nothing to delete",)]
+
+            conn.commit()
+        else:
+            rows = cur.fetchall()
 
        # close the communication with the PostgreSQL
         cur.close()
@@ -211,14 +222,39 @@ app = Flask(__name__)
 # serve homepage when user enters site
 @app.route("/")
 def home_page():
-    return render_template('index.html')
+    return render_template('home.html')
 
 @app.route('/about', methods=['POST', 'GET'])
 def about_page():
     if request.method == 'POST':
         return 'whats this page?'
     elif request.method == 'GET':
-        return 'im the about us page'
+        return render_template('about.html')
+
+@app.route('/login', methods=['POST', 'GET'])
+def login_page():
+    if request.method == 'POST':
+        return 'so this is the login page'
+    elif request.method == 'GET':
+        return render_template('login.html')
+
+@app.route('/editor-view', methods=['POST', 'GET'])
+def editor_page():
+    if request.method == 'POST':
+        return render_template('editor.html')
+    elif request.method == 'GET':
+        return 'i shouldnt be here'
+
+@app.route('/delete-result', methods=['POST'])
+def delete_results_page(): # handle editor.html
+    if 'submit_delete' in request.form:
+        print('I GOT HERE')
+        userdel = request.form['delete'] # get name of entry user wants to delete
+        
+        query = f"DELETE FROM CATEGORY WHERE c_name='test';"
+        rows = connect(query)
+
+        return render_template('user-result.html', rows=rows)
 
 # handle form data
 @app.route('/search', methods=['POST', 'GET']) # the page the this function leads to 
@@ -227,7 +263,7 @@ def search_page():
     if request.method == 'POST':
         return 'hello world'
     elif request.method == 'GET':
-        return render_template('user-form.html')
+        return render_template('search.html')
 
 @app.route('/search-result', methods=['POST'])
 def search_results_page(): # handle index.html
@@ -241,13 +277,6 @@ def search_results_page(): # handle index.html
 
         return render_template('user-result.html', rows=rows)
 
-
-@app.route('/login', methods=['POST', 'GET'])
-def login_page():
-    if request.method == 'POST':
-        return 'so this is the login page'
-    elif request.method == 'GET':
-        return 'i got got'
 
 if __name__ == '__main__':
     app.run(debug = True)

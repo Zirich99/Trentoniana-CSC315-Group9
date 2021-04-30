@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/style.css') }}"/>
+	</head>
+
+    <body>
+		<h1>
+			The Trentoniana Room
+		</h1>
+    </body>
+
+	<div class="topnav">
+		<a href="/" class="active">Home</a>
+		<a href="/about">About Us</a>
+		<a href="/search">Search</a>
+		<a href="/login">Login</a>
+	</div>
+
+	<form action="/search-result" method="POST">
+		<div>
+
+		<!-- SORT DROPDOWN -->
+
+		Sort by
+		<br>
+		<select name="sort">
+			<option value="(SELECT NULL)">None</option>
+			<option value="ENTRY.entry_name">Title</option>
+			<option value="CATEGORY.c_name">Category</option>
+			<option value="AUDIOFILE.audio_filename">Audio File</option>
+			<option value="PARTICIPANT.fullname">Participant</option>
+			<option value="TRANSCRIPTFILE.transcript_filename">Transcript File</option>
+			<option value="TRANSCRIBER.fullname">Transcriber</option>
+		</select>
+		<input type="checkbox" name="reverse"/>Reversed
+		<!--<input type="submit" name="submit_sort" value="🔍︎">-->
+
+		<!-- SEARCH BOX -->
+		<br><br>
+		Search for
+		<br>
+		<input type ="text" name="search" placeholder="Search..."/>
+		<input type="submit" name="submit_search" value="🔍︎">
+
+	</form>
+	<br><br>
+	<button onclick="goBack()">Back</button>
+	<script>
+		function goBack() {
+			window.history.back();
+		}	
+	</script>
+</html>
