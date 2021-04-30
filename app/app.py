@@ -208,46 +208,20 @@ def connect(query):
 
 app = Flask(__name__)
 
-'''
-How routes work:
-    @app.route("/") # you start at this page
-    def start_here():
-        # this is the first thing the website does
-        # display your page
-        return render_template('landing-page.html')
-
-    # next
-
-    # as soon as the user interacts with landing-page.html,
-    # they are rerouted to this page below
-    @app.route("/result-of-action", methods=['POST'])
-    def handle_action_from_landing_pg():
-        # access landing-page.html
-        if user clicks 'About Us':
-            return render_template('about-us.html')
-        elif user clicks 'Search':
-            return render_template('search.html')
-        elif .. 'login':
-            return .. 'login.html'
-        etc
-    
-    # next
-
-    # now 
-    @app.route()
-'''
-
 # serve homepage when user enters site
 @app.route("/")
 def home_page():
     return render_template('index.html')
 
-    # user-form.html has <form action="/search-results" method="POST">
-    return render_template('user-form.html')
+@app.route('/about', methods=['POST', 'GET'])
+def about_page():
+    if request.method == 'POST':
+        return 'whats this page?'
+    elif request.method == 'GET':
+        return 'im the about us page'
 
 # handle form data
 @app.route('/search', methods=['POST', 'GET']) # the page the this function leads to 
-# methods = ['GET', 'POST']
 def search_page():
 
     if request.method == 'POST':
@@ -255,10 +229,8 @@ def search_page():
     elif request.method == 'GET':
         return render_template('user-form.html')
 
-@app.route('/search-result', methods=['POST', 'GET'])
-def search_results_page():
-    # handle index.html
-    
+@app.route('/search-result', methods=['POST'])
+def search_results_page(): # handle index.html
     if 'submit_search' in request.form: #or 'submit_sort' in request.form:
         
         usersel = request.form['sort'] # get user sort selection
@@ -269,9 +241,13 @@ def search_results_page():
 
         return render_template('user-result.html', rows=rows)
 
-    elif request.method == 'GET':
-        return 'uhhh'
 
+@app.route('/login', methods=['POST', 'GET'])
+def login_page():
+    if request.method == 'POST':
+        return 'so this is the login page'
+    elif request.method == 'GET':
+        return 'i got got'
 
 if __name__ == '__main__':
     app.run(debug = True)
