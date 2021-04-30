@@ -201,6 +201,12 @@ def connect(query):
                 rows = [("There was nothing to delete",)]
 
             conn.commit()
+        elif 'INSERT' in query.upper():
+            # 
+            pass
+        elif 'UPDATE' in query.upper():
+            # 
+            pass
         else:
             rows = cur.fetchall()
 
