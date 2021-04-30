@@ -4,25 +4,19 @@
 
 """
 ONE-TIME SETUP
-
 To run this example in the CSC 315 VM you first need to make
 the following one-time configuration changes:
-
 # set the postgreSQL password for user 'lion'
 sudo -u postgres psql
     ALTER USER lion PASSWORD 'lion';
     \q
-
 # install pip for Python 3
 sudo apt update
 sudo apt install python3-pip
-
 # install psycopg2
 pip3 install psycopg2-binary
-
 # install flask
 pip3 install flask
-
 # logout, then login again to inherit new shell environment
 """
 
@@ -30,21 +24,16 @@ pip3 install flask
 CSC 315
 Spring 2021
 John DeGood
-
 # usage
 export FLASK_APP=app.py 
 flask run
-
 # then browse to http://127.0.0.1:5000/
-
 Purpose:
 Demonstrate Flask/Python to PostgreSQL using the psycopg adapter.
 Connects to the 7dbs database from "Seven Databases in Seven Days"
 in the CSC 315 VM.
-
 For psycopg documentation:
 https://www.psycopg.org/
-
 This example code is derived from:
 https://www.postgresqltutorial.com/postgresql-python/
 https://scoutapm.com/blog/python-flask-tutorial-getting-started-with-flask
@@ -130,13 +119,10 @@ SELECT
     PARTICIPANT.fullname AS participant,
     TRANSCRIPTFILE.transcript_filename AS transcript,
     TRANSCRIBER.fullname AS transcriber
-
 FROM ENTRY
-
 -- get category of entry
 JOIN CATEGORY
     ON ENTRY.c_name = CATEGORY.c_name
-
 -- get audio filename and participants
 JOIN AUDIO
     ON ENTRY.audio_id = AUDIO.audio_id
@@ -144,7 +130,6 @@ JOIN AUDIOFILE
     ON AUDIO.audiofile_id = AUDIOFILE.audiofile_id
 JOIN PARTICIPANT
     ON AUDIO.p_id = PARTICIPANT.p_id
-
 -- get transcript filename and transcriber
 JOIN TRANSCRIPT
     ON ENTRY.transcript_id = TRANSCRIPT.transcript_id
@@ -152,7 +137,6 @@ JOIN TRANSCRIPTFILE
     ON TRANSCRIPT.transcriptfile_id = TRANSCRIPTFILE.transcriptfile_id       
 JOIN TRANSCRIBER
     ON TRANSCRIPT.t_id = TRANSCRIBER.t_id
-
 ORDER BY {usersel} {'DESC' if reverse else 'ASC'}
 ;
         """
@@ -205,8 +189,12 @@ def connect(query):
             # 
             pass
         elif 'UPDATE' in query.upper():
-            # 
-            pass
+            num_rows_updated = cur.rowcount
+            if num_rows_updated > 0:
+                rows = [(f"The following query was run:\n{query} updated {num_rows_updated} rows",)]
+            else:
+                rows =[("There was nothing to update",)]
+            conn.commit()
         else:
             rows = cur.fetchall()
 
@@ -282,6 +270,18 @@ def delete_results_page(): # handle editor.html
         rows = connect(query)
 
         return render_template('user-result.html', rows=rows)
+        
+#Routing for the update
+@app.route('/update-result', methods=['POST'])
+def update_results_page():
+    if 'submit_update' in request.form:
+        userorig = request.form['old_value'] #name of the entry the user wants to update
+        usernew = request.form['new_value']
+        
+        query = f"UPDATE ENTRY SET entry_name = '{usernew}' WHERE entry_name = '{userorig}';"
+        rows = connect(query)
+        
+        return render_template('user-result.html', rows=rows)
 
 # handle form data
 @app.route('/search', methods=['POST', 'GET']) # the page the this function leads to 
@@ -321,13 +321,10 @@ if __name__ == '__main__':
 
 '''
 might make use of this later
-
 tables = (', ').join(request.form.getlist("search_substr"))
     if tables != '':
-
         # final query
         query = f"SELECT * FROM {tables};"
-
         # perform query
         rows = connect(query)
     else:
