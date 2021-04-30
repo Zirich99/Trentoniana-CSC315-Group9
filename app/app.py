@@ -247,7 +247,28 @@ def login_page():
 @app.route('/editor-view', methods=['POST', 'GET'])
 def editor_page():
     if request.method == 'POST':
-        return render_template('editor.html')
+        # handle login.html
+        if 'submit_login' in request.form:
+            username = request.form['username']
+            password = request.form['password']
+            query = f"""
+                SELECT
+                    e_username, 
+                    e_password
+                FROM EDITOR 
+                WHERE
+                    e_username='{username}' AND
+                    e_password='{password}'
+                ;
+            """.strip()
+
+            rows = connect(query)
+            if rows:
+                return render_template('editor.html')
+            else:
+                rows = [("Invalid login information",)]
+                return render_template('user-result.html',rows=rows)
+
     elif request.method == 'GET':
         return 'i shouldnt be here'
 
