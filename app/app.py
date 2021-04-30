@@ -1,0 +1,308 @@
+#! /usr/bin/python3
+
+"""
+ONE-TIME SETUP
+
+To run this example in the CSC 315 VM you first need to make
+the following one-time configuration changes:
+
+# set the postgreSQL password for user 'lion'
+sudo -u postgres psql
+    ALTER USER lion PASSWORD 'lion';
+    \q
+
+# install pip for Python 3
+sudo apt update
+sudo apt install python3-pip
+
+# install psycopg2
+pip3 install psycopg2-binary
+
+# install flask
+pip3 install flask
+
+# logout, then login again to inherit new shell environment
+"""
+
+"""
+CSC 315
+Spring 2021
+John DeGood
+
+# usage
+export FLASK_APP=app.py 
+flask run
+
+# then browse to http://127.0.0.1:5000/
+
+Purpose:
+Demonstrate Flask/Python to PostgreSQL using the psycopg adapter.
+Connects to the 7dbs database from "Seven Databases in Seven Days"
+in the CSC 315 VM.
+
+For psycopg documentation:
+https://www.psycopg.org/
+
+This example code is derived from:
+https://www.postgresqltutorial.com/postgresql-python/
+https://scoutapm.com/blog/python-flask-tutorial-getting-started-with-flask
+https://www.geeksforgeeks.org/python-using-for-loop-in-flask/
+"""
+
+import psycopg2
+from config import config
+from flask import Flask, render_template, request
+from datetime import date
+    
+# Functions to handle user input
+def usersearch(header, rows, userstr):
+    # input: rows returned from a previous query and the substring to search for
+    # output: rows containing the user's search string in any of their fields
+    
+    # This function searches for user's input string in the fields:
+    # ENTRY.entry_name
+    # AUDIOFILE.audiofile_name
+    # TRANSCRIPTFILE.transcriptfile_name
+    # CATEGORY.c_name
+    # PARTICIPANT.fullname
+    # TRANSCRIBER.fullname
+    # where all these values are joined by the ENTRY they relate to
+
+    if userstr=='': 
+        rows.insert(0, header)
+        pass # if user searched for nothing, just return all rows
+        # user searched for empty string
+        #msg = "You did not search for anything" # message output to user
+        #row = (msg,) # each row is a tuple of attrs, here just the message
+        #rows = [row,] # list of rows, contains only the row with the single message item
+    else:
+        # get rows containing the user string
+        rows = [row for row in rows if userstr in ''.join(row)]
+    
+        if rows:
+            # matches were found
+
+            # highlight matches by surrounding them with < >
+            rows = [(attr.replace(userstr, f'<{userstr}>') for attr in row) for row in rows]
+
+            #header = ('Title', 'Category', 'Audio File', 'Participant', 'Transcript File', 'Transcriber')
+            #cols = zip(*rows)
+            #header = (attr+('_'*len(max(col,key=len))) for (attr,col) in zip(header,cols))
+            rows.insert(0, header)
+        else:
+            # no matches were found
+            msg = f"No results were found containing your search '{userstr}'" # message output to user
+            row = (msg,) # each row is a tuple of attrs, here just the message
+            rows = [row,] # list of rows, contains only the row with the single message item
+
+    return rows
+    
+def usersort(usersel, reverse):
+    # input: user selection of what to sort by, chosen from dropdown
+    # output: rows sorted by the chosen criteria
+
+    # list of pairs of options with their respective column names
+    options =  [('ENTRY.entry_name', 'Title'),
+                ('CATEGORY.c_name', 'Category'),
+                ('AUDIOFILE.audio_filename', 'Audio File'),
+                ('PARTICIPANT.fullname', 'Participant'),
+                ('TRANSCRIPTFILE.transcript_filename', 'Transcript File'),
+                ('TRANSCRIBER.fullname', 'Transcriber')]
+
+    # modify header to show which col the user selected to sort by
+    rev = ' (reversed)' if reverse else ''
+    header = tuple(f"Sorted by {col}{rev}" if opt==usersel else col for (opt,col) in options)
+
+    # make sure all options are accounted for (except sorting by nothing)
+    if usersel != '(SELECT NULL)':
+        # make sure all user selection options are listed in options list,
+        # catches bugs if new options are added
+        if not any("Sorted by" in col for col in header):
+            raise NotImplementedError(f"looks like you forgot to add option '{usersel}' to in the usersort() function")
+
+    query = (
+        f"""
+SELECT
+    ENTRY.entry_name AS entry,
+    CATEGORY.c_name AS category,
+    AUDIOFILE.audio_filename AS audio,
+    PARTICIPANT.fullname AS participant,
+    TRANSCRIPTFILE.transcript_filename AS transcript,
+    TRANSCRIBER.fullname AS transcriber
+FROM ENTRY
+-- get category of entry
+JOIN CATEGORY
+    ON ENTRY.c_name = CATEGORY.c_name
+-- get audio filename and participants
+JOIN AUDIO
+    ON ENTRY.audio_id = AUDIO.audio_id
+JOIN AUDIOFILE
+    ON AUDIO.audiofile_id = AUDIOFILE.audiofile_id
+JOIN PARTICIPANT
+    ON AUDIO.p_id = PARTICIPANT.p_id
+-- get transcript filename and transcriber
+JOIN TRANSCRIPT
+    ON ENTRY.transcript_id = TRANSCRIPT.transcript_id
+JOIN TRANSCRIPTFILE
+    ON TRANSCRIPT.transcriptfile_id = TRANSCRIPTFILE.transcriptfile_id       
+JOIN TRANSCRIBER
+    ON TRANSCRIPT.t_id = TRANSCRIBER.t_id
+ORDER BY {usersel} {'DESC' if reverse else 'ASC'}
+;
+        """
+    ).strip() # removes leading and trailing whitespace from this string
+
+    rows = connect(query)
+
+    # add column names
+    #rows.insert(0, header)
+
+    return rows, header
+ 
+ #This function combines the connections searching for a file name in the entry table
+ #You will need to add a function for each query you want to make.
+def connect(query):
+    """ Connect to the PostgreSQL database server """
+    conn = None
+    try:
+        # read connection parameters from database.ini
+        params = config()
+ 
+        # connect to the PostgreSQL server
+        print('Connecting to the %s database...' % (params['database']))
+        conn = psycopg2.connect(**params)
+        print('Connected.')
+      
+        # create a cursor
+        cur = conn.cursor()
+
+        #The query that is automatically used to search through files
+        #Rewrite this query if you want a different result
+        #file_selection = "select * from entry where entry_name = '%s';" % query
+
+        # execute a query using fetchall()
+        cur.execute(query)
+        rows = cur.fetchall()
+
+       # close the communication with the PostgreSQL
+        cur.close()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            conn.close()
+            print('Database connection closed.')
+    # return the query result from fetchall()
+    return rows
+ 
+# app.py
+
+app = Flask(__name__)
+
+
+# serve form web page
+@app.route("/")
+def form():
+    return render_template('my-form.html')
+
+# handle form data
+@app.route('/form-handler', methods=['POST'])
+def handle_data():
+    # error field
+    error = None
+    # user input fields
+    user_login = request.form['username']
+    user_password = request.form['password']
+    
+    #Final query
+    query = f"SELECT e_username, e_password FROM EDITOR WHERE e_username LIKE '{user_login}' AND e_password LIKE '{user_password}'"
+    
+    #Perform the query
+    result = connect(query)
+    
+    if result == []:
+        error = 'Invalid username or password'
+        return render_template('failed-login.html', error=error)
+    else:
+        return render_template('editor-dashboard.html', result=result)
+
+#Router for the failed login
+@app.route('/failed-login', methods=['GET', 'POST'])
+def failed_login():
+    #Wait for the user to confirm before returning
+    user_input = request.form['go-back']
+    if user_input != []:
+        return render_template('my-form.html')
+    return render_template ('failed-login.html')
+    
+#Router for the dashboard
+@app.route("/dashboard", methods=['GET', 'POST'])
+def dashboard():
+    if 'submit_search' in request.form: #or 'submit_sort' in request.form:
+        usersel = request.form['sort'] # get user sort selection
+        userrev = True if 'reverse' in request.form else False
+        sorted_rows, header = usersort(usersel, userrev) # sort db
+        userstr = request.form['search'] # get user search string
+        rows = usersearch(header, sorted_rows, userstr) 
+        return render_template('my-result.html', rows=rows)
+    elif 'submit_add' in request.form:
+        return render_template("editor-add.html")
+    #elif 'submit_delete' in request.form:
+        #return render_template("editor-delete.html")
+    #elif 'submit_update' in request.form:
+        #return render_template("editor-update.html")
+        
+    return render_template('editor-dashboard.html')
+    
+@app.route("/add", methods=['GET','POST'])
+def add():
+    #We are adding an audio file to the database.
+    #User input fields for the id and audio file
+    user_file_id = request.form['file_id']
+    user_entry_name = request.form['entry_name']
+    user_audio_filename = request.form['Audio_filename']
+    user_recording_date = request.form['Date_of_recording']
+    #User input fields for the transcript
+    user_transcript_filename = request.form['Transcript_filename']
+    user_transcriber_name = request.form['Transcriber_name']
+    user_transcription_date = request.form['Date_of_transcription']
+    #User input fields for the participant
+    user_participants = request.form['participants']
+    #User input fields for the category
+    user_category_name = request.form['category_name']
+    #Predefined parameters collected by system
+    today = date.today()
+    d1 = today.strftime("%d%m%Y")
+    #Query to add the category
+    print("Category name: ", user_category_name)
+    query = f"INSERT INTO category (c_name) VALUES ('{user_category_name}');"
+    print("Current query:", query)
+    result = connect(query)
+    print("Current Row:",result)
+    #Query to add into the audio file
+    #query = f"INSERT INTO audiofile (audiofile_id, audio_filename, upload_date, e_username) VALUES('{user_audio_id}', '{user_audio_filename}', 'd1', ('Editor1'));"
+    #result = connect(query)
+    #Query to add into participant
+    #query = f"INSERT INTO participant (p_id, fullname) VALUES ('{user_file_id}', '{user_participants}');"
+    #result = connect(query)
+    #Query to add into audio
+    #query = f"INSERT INTO audio (audio_id, audiofile_id, date_of_recording, p_id, e_username) VALUES ('{user_file_id}', '{user_audio_filename}', '{user_recording_date}', '{user_participants}', 'Editor1');"
+    #result = connect(query)
+    #Query to add into transcriber
+    #query = f"INSERT INTO transcriber (t_id, fullname, e_username) VALUES ('{user_file_id}', '{user_transcriber_name}', 'Editor1');"
+    #result = connect(query)
+    #Query to add into transcript file
+    #query = f"INSERT INTO transcriptfile (transcriptfile_id, transcript_filename, upload_date, e_username) VALUES ('{user_filename}', '{user_transcript_filename}', 'd1', 'Editor1');"
+    #result = connect(query)
+    #Query to add into transcript
+    #query = f"INSERT INTO transcript (transcript_id, transcriptfile_id, date_of_transcription, t_id, e_username) VALUES ('{user_file_id}', '{user_file_id}', '{user_transcription_date}', '{user_file_id}', 'Editor1');"
+    #result = connect(query)
+    #Query to add into entry
+    #query = f"INSERT INTO entry (entry_id, entry_name, audio_id, transcript_id, c_name, e_username) VALUES ('{user_file_id}', '{user_entry_name}', '{user_file_id}', '{user_file_id}', '{user_category_name}', 'Editor1');"
+    #result = connect(query)
+    
+    return render_template('my-result.html')
+
+
+if __name__ == '__main__':
+    app.run(debug = True)
