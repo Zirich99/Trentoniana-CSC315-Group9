@@ -312,6 +312,53 @@ def insert_results_page():
         rows = connect(query)
 
         return render_template('user-result.html', rows=rows)
+        
+#UPDATE ROUTE
+#Routing for the update
+@app.route('/update-result', methods=['POST'])
+def update_results_page():
+    if 'submit_update' in request.form:
+        usertable = request.form['table_select'] #The table the user is updating
+        userattribute = request.form['attribute_select'] #The attribute the user is updating
+        fileid = request.form['entry_id'] #the entry number of the tuple the user is updating
+        userorig = request.form['table_value'] #name of the entry the user wants to update
+        usernew = request.form['new_value'] #the new value the entry
+        
+        #Now we check to see the table and determine the appropriate ID attribute
+        #The user is updating the entry entity
+        if usertable == "ENTRY":
+            query = f"UPDATE {usertable} SET {userattribute} = '{usernew}' WHERE {userattribute} = '{userorig}' AND entry_id = {fileid};"
+            rows = connect(query)
+            return render_template('user-result.html', rows=rows)
+        #The user is updating an audio file entity
+        elif usertable == "AUDIO" or usertable == "AUDIOFILE":
+            query = f"UPDATE {usertable} SET {userattribute} = '{usernew}' WHERE {userattribute} = '{userorig}' AND audiofile_id = {fileid};"
+            rows = connect(query)
+            return render_template('user-result.html', rows=rows)
+        #The user is updating a transcript file entity
+        elif usertable == "TRANSCRIPT" or usertable == "TRANSCRIPTFILE":
+            query = f"UPDATE {usertable} SET {userattribute} = '{usernew}' WHERE {userattribute} = '{userorig}' AND transcriptfile_id = {fileid};"
+            rows = connect(query)
+            return render_template('user-result.html', rows=rows)
+        #The user is updating the participant entity
+        elif usertable == "PARTICIPANT":
+            query = f"UPDATE {usertable} SET {userattribute} = '{usernew}' WHERE {userattribute} = '{userorig}' AND p_id = {fileid};"
+            rows = connect(query)
+            return render_template('user-result.html', rows=rows)
+        #The user is updating the transcriber entity
+        elif usertable == "TRANSCRIBER":
+            query = f"UPDATE {usertable} SET {userattribute} = '{usernew}' WHERE {userattribute} = '{userorig}' AND t_id = {fileid};"
+            rows = connect(query)
+            return render_template('user-result.html', rows=rows)
+        #The user is updating categories, which doesn't have an ID.
+        #Instead we will rely on all entries being unique.
+        else:
+            query = f"UPDATE {usertable} SET {userattribute} = '{usernew}' WHERE {userattribute} = '{userorig}';"
+            rows = connect(query)
+            return render_template('user-result.html', rows=rows)
+        
+        #Default template render
+        return render_template('user-result.html', rows=rows)
 
 # handle form data
 @app.route('/search', methods=['POST', 'GET']) # the page the this function leads to 
