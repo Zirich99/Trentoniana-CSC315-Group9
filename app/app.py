@@ -201,6 +201,7 @@ def connect(query):
                 rows = [("There was nothing to delete",)]
 
             conn.commit()
+
         elif 'INSERT' in query.upper():
             # 
             pass
@@ -221,6 +222,13 @@ def connect(query):
     # return the query result from fetchall()
     return rows
  
+# make page with trentoniana room links to 
+# - photographs, maps and atlases, audio visual
+# change home page
+# add transcripts
+# map page   (email from Ally)
+# fuck we have to strip all the csv's
+
 # app.py
 
 app = Flask(__name__)
@@ -275,7 +283,8 @@ def editor_page():
 @app.route('/delete-result', methods=['POST'])
 def delete_results_page(): # handle editor.html
     if 'submit_delete' in request.form:
-        print('I GOT HERE')
+        
+        
         userdel = request.form['delete'] # get name of entry user wants to delete
         
         query = f"DELETE FROM CATEGORY WHERE c_name='test';"
