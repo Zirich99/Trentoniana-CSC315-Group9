@@ -4,25 +4,19 @@
 
 """
 ONE-TIME SETUP
-
 To run this example in the CSC 315 VM you first need to make
 the following one-time configuration changes:
-
 # set the postgreSQL password for user 'lion'
 sudo -u postgres psql
     ALTER USER lion PASSWORD 'lion';
     \q
-
 # install pip for Python 3
 sudo apt update
 sudo apt install python3-pip
-
 # install psycopg2
 pip3 install psycopg2-binary
-
 # install flask
 pip3 install flask
-
 # logout, then login again to inherit new shell environment
 """
 
@@ -30,21 +24,16 @@ pip3 install flask
 CSC 315
 Spring 2021
 John DeGood
-
 # usage
 export FLASK_APP=app.py 
 flask run
-
 # then browse to http://127.0.0.1:5000/
-
 Purpose:
 Demonstrate Flask/Python to PostgreSQL using the psycopg adapter.
 Connects to the 7dbs database from "Seven Databases in Seven Days"
 in the CSC 315 VM.
-
 For psycopg documentation:
 https://www.psycopg.org/
-
 This example code is derived from:
 https://www.postgresqltutorial.com/postgresql-python/
 https://scoutapm.com/blog/python-flask-tutorial-getting-started-with-flask
@@ -130,13 +119,10 @@ SELECT
     PARTICIPANT.fullname AS participant,
     TRANSCRIPTFILE.transcript_filename AS transcript,
     TRANSCRIBER.fullname AS transcriber
-
 FROM ENTRY
-
 -- get category of entry
 JOIN CATEGORY
     ON ENTRY.c_name = CATEGORY.c_name
-
 -- get audio filename and participants
 JOIN AUDIO
     ON ENTRY.audio_id = AUDIO.audio_id
@@ -144,7 +130,6 @@ JOIN AUDIOFILE
     ON AUDIO.audiofile_id = AUDIOFILE.audiofile_id
 JOIN PARTICIPANT
     ON AUDIO.p_id = PARTICIPANT.p_id
-
 -- get transcript filename and transcriber
 JOIN TRANSCRIPT
     ON ENTRY.transcript_id = TRANSCRIPT.transcript_id
@@ -152,7 +137,6 @@ JOIN TRANSCRIPTFILE
     ON TRANSCRIPT.transcriptfile_id = TRANSCRIPTFILE.transcriptfile_id       
 JOIN TRANSCRIBER
     ON TRANSCRIPT.t_id = TRANSCRIBER.t_id
-
 ORDER BY {usersel} {'DESC' if reverse else 'ASC'}
 ;
         """
@@ -206,8 +190,12 @@ def connect(query):
             # 
             pass
         elif 'UPDATE' in query.upper():
-            # 
-            pass
+            num_rows_updated = cur.rowcount
+            if num_rows_updated > 0:
+                rows = [(f"The following query was run:\n{query} updated {num_rows_updated} rows",)]
+            else:
+                rows =[("There was nothing to update",)]
+            conn.commit()
         else:
             rows = cur.fetchall()
 
@@ -291,6 +279,56 @@ def delete_results_page(): # handle editor.html
         rows = connect(query)
 
         return render_template('user-result.html', rows=rows)
+        
+#Routing for the update
+@app.route('/update-result', methods=['POST'])
+def update_results_page():
+    if 'submit_update' in request.form:
+        usertable = request.form['table_select'] #The table the user is updating
+        userattribute = request.form['attribute_select'] #The attribute the user is updating
+        fileid = request.form['entry_id'] #the entry number of the tuple the user is updating
+        userorig = request.form['table_value'] #name of the entry the user wants to update
+        usernew = request.form['new_value'] #the new value the entry
+        
+        #Now we check to see the table and determine the appropriate ID attribute
+        #The user is updating the entry entity
+        #primary_key_query = f"select C.COLUMN_NAME FROM  INFORMATION_SCHEMA.TABLE_CONSTRAINTS T  JOIN INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE C  ON C.CONSTRAINT_NAME=T.CONSTRAINT_NAME  WHERE  C.TABLE_NAME='{usertable}'and T.CONSTRAINT_TYPE='PRIMARY KEY'"
+        #query = f"UPDATE {usertable} SET {userattribute} = '{usernew}' WHERE {primary_key_query[0]} = {fileid}"
+        #rows = connect(query)
+        #return render_template('user-result.html', rows=rows)
+        if usertable == "ENTRY":
+            query = f"UPDATE {usertable} SET {userattribute} = '{usernew}' WHERE entry_id = {fileid};"
+            rows = connect(query)
+            return render_template('user-result.html', rows=rows)
+        #The user is updating an audio file entity
+        elif usertable == "AUDIO" or usertable == "AUDIOFILE":
+            query = f"UPDATE {usertable} SET {userattribute} = '{usernew}' WHERE audiofile_id = {fileid};"
+            rows = connect(query)
+            return render_template('user-result.html', rows=rows)
+        #The user is updating a transcript file entity
+        elif usertable == "TRANSCRIPT" or usertable == "TRANSCRIPTFILE":
+            query = f"UPDATE {usertable} SET {userattribute} = '{usernew}' WHERE transcriptfile_id = {fileid};"
+            rows = connect(query)
+            return render_template('user-result.html', rows=rows)
+        #The user is updating the participant entity
+        elif usertable == "PARTICIPANT":
+            query = f"UPDATE {usertable} SET {userattribute} = '{usernew}' WHERE p_id = {fileid};"
+            rows = connect(query)
+            return render_template('user-result.html', rows=rows)
+        #The user is updating the transcriber entity
+        elif usertable == "TRANSCRIBER":
+            query = f"UPDATE {usertable} SET {userattribute} = '{usernew}' WHERE t_id = {fileid};"
+            rows = connect(query)
+            return render_template('user-result.html', rows=rows)
+        #The user is updating categories, which doesn't have an ID.
+        #Instead we will rely on all entries being unique.
+        else:
+            query = f"UPDATE {usertable} SET {userattribute} = '{usernew}' WHERE {userattribute} = '{userorig}';"
+            rows = connect(query)
+            return render_template('user-result.html', rows=rows)
+        
+        #Default template render
+        return render_template('user-result.html', rows=rows)
 
 # handle form data
 @app.route('/search', methods=['POST', 'GET']) # the page the this function leads to 
@@ -312,6 +350,11 @@ def search_results_page(): # handle index.html
         rows = usersearch(header, sorted_rows, userstr)
 
         return render_template('user-result.html', rows=rows)
+        
+#Show the map
+@app.route('/map', methods=['GET', 'POST'])
+def show_map():
+    return render_template('map.html')
 
 
 if __name__ == '__main__':
@@ -330,13 +373,10 @@ if __name__ == '__main__':
 
 '''
 might make use of this later
-
 tables = (', ').join(request.form.getlist("search_substr"))
     if tables != '':
-
         # final query
         query = f"SELECT * FROM {tables};"
-
         # perform query
         rows = connect(query)
     else:

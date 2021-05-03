@@ -16,6 +16,8 @@
 		<a href="/about">About Us</a>
 		<a href="/search">Search</a>
 		<a href="/login">Login</a>
+		<a href="/map">Map</a>
+		<a href="https://trentonlib.org/trentoniana/">Trentoniana Homepage</a>
 	</div>
 
     <form action="/search-result" method="POST">
@@ -63,10 +65,39 @@
     </form>
 
     <!-- Update -->
+   <!-- Update -->
     <h3>Update an Entry</h3>
-    
-    <input type="text" name="update" placeholder="Update"/><br>
-    <input type="submit" value="Submit to Update"><br><br>
+    <form method="POST" action="/update-result">
+        <h4>Select the table you would like to update.</h4>
+        <select name="table_select">
+            <option value="ENTRY">Entry</option>
+            <option value="AUDIOFILE">Audio File</option>
+            <option value="AUDIO">Audio</option>
+            <option value="TRANSCRIPTFILE">Transcript File</option>
+            <option value="TRANSCRIPT">Transcript</option>
+            <option value="PARTICIPANT">Participant</option>
+            <option value="CATEGORY">Category</option>
+            <option value="TRANSCRIBER">Transcriber</option>
+        </select>
+        <h4>Select the attribute you would like to change.</h4>
+        <select name="attribute_select">
+            <option value="entry_name">Entry Filename</option>
+            <option value="audio_filename">Audio Filename</option>
+            <option value="date_of_recording">Date of Recording</option>
+            <option value="transcript_filename">Transcript Filename</option>
+            <option value="date_of_transcription">Date of Transcription</option>
+            <option value="fullname">Participant Name</option>
+            <option value="c_name">Entry Categories</option>
+            <option value="fullname">Transcriber Name</option>
+        </select>
+        <h4>Input the ID of the entry you would like to update</h4>
+        <input type="text" name="entry_id" placeholder="Entry ID"/><br>
+        <h4>Input the value of the entry you would like to update.</h4>
+        <input type="text" name="table_value" placeholder="Table Value"/><br>
+        <h4>Include the new value for the entry.</h4>
+        <input type="text" name="new_value" placeholder="New Value"><br>
+        <input type="submit" name="submit_update" value="Submit to Update"><br><br>
+    </form>
 
 	<button onclick="goBack()">Back</button>
 	<script>
