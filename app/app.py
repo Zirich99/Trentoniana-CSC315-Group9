@@ -341,6 +341,11 @@ def search_results_page(): # handle index.html
         rows = usersearch(header, sorted_rows, userstr)
 
         return render_template('user-result.html', rows=rows)
+        
+#Show the map
+@app.route('/map', methods=['GET', 'POST'])
+def show_map():
+    return render_template('map.html')
 
 
 if __name__ == '__main__':
