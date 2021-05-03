@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/style.css') }}"/>
+	</head>
+
+    <body>
+		<h1>
+			The Trentoniana Room
+		</h1>
+    </body>
+
+	<div class="topnav">
+		<a href="/" class="active">Home</a>
+		<a href="/about">About Us</a>
+		<a href="/search">Search</a>
+		<a href="/login">Login</a>
+	</div>
+
+    <form action="/search-result" method="POST">
+        <div>
+        <h3>Search Trentoniana Database</h3>
+
+        <!-- SORT DROPDOWN -->
+
+        Sort by
+        <br>
+        <select name="sort">
+            <option value="(SELECT NULL)">None</option>
+            <option value="ENTRY.entry_name">Title</option>
+            <option value="CATEGORY.c_name">Category</option>
+            <option value="AUDIOFILE.audio_filename">Audio File</option>
+            <option value="PARTICIPANT.fullname">Participant</option>
+            <option value="TRANSCRIPTFILE.transcript_filename">Transcript File</option>
+            <option value="TRANSCRIBER.fullname">Transcriber</option>
+        </select>
+        <input type="checkbox" name="reverse"/>Reversed
+        
+        <!-- Search Box -->
+        <br><br>
+        Search for
+        <br>
+        <input type ="text" name="search" placeholder="Search..."/>
+        <input type="submit" name="submit_search" value="🔍︎">
+        <br><br>
+        </div>
+    </form>
+
+
+    <!-- Insert -->
+    <h3>Add an Entry:</h3>
+
+    Insert synopsis:
+    <form method="POST" action="/insert-synopsis">
+        <input type ="text" name="insert-syn" placeholder="Add"/><br>
+        <input type="submit" name="submit_add"><br><br>
+        </form>
+    Insert transcript:
+    <form method="POST" action="/insert-transcript">
+        <input type ="text" name="insert-transcript" placeholder="Add"/><br>
+        <input type="submit" name="submit_add"><br><br>
+        </form>
+    Insert audio:
+    <form method="POST" action="/insert-audio">
+        <input type ="text" name="insert-audio" placeholder="Add"/><br>
+        <input type="submit" name="submit_add"><br><br>
+        </form>
+    Insert participant
+    <form method="POST" action="/insert-participant">
+        <input type ="text" name="insert-participant" placeholder="Add"/><br>
+        <input type="submit" name="submit_add"><br><br>
+        </form>
+    Insert entry:
+    <form method="POST" action="/insert-entry">
+        <input type ="text" name="insert-entry" placeholder="Add"/><br>
+        <input type="submit" name="submit_add"><br><br>
+        </form>
+    Insert topic:
+    <form method="POST" action="/insert-topic">
+        <input type ="text" name="insert-topic" placeholder="Add"/><br>
+        <input type="submit" name="submit_add"><br><br>
+    </form>
+
+    <!--Delete -->
+    <h3>Delete an Entry</h3>
+    <form method="POST" action="/delete-result">
+        <input type ="text" name="delete" placeholder="Delete"/><br>
+        <input type="submit" name="submit_delete" value="Submit to Delete"><br><br>
+    </form>
+
+    <!-- Update -->
+    <h3>Update an Entry</h3>
+    <form method="POST" action="/update-result">
+    <input type="text" name="update" placeholder="Update"/><br>
+    <input type="submit" name= "submit_update" value="Submit to Update"><br><br>
+    </form>
+
+	<button onclick="goBack()">Back</button>
+	<script>
+		function goBack() {
+			window.history.back();
+		}	
+	</script>
+
+</html>

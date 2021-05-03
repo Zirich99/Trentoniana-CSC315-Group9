@@ -165,18 +165,14 @@ VALUES
     ('Jewish'),
     ('Oral History'),
     ('Family History'),
-    ('Immigration'),
-    -- remove later
-    --('test');
+    ('Immigration');
 
 -- create audiofile records
 INSERT INTO audiofile (audiofile_id, audio_filename, upload_date, e_username)
 VALUES 
     (8, 'JHS08', '04/11/2021', 'Editor1'),
     (1, 'Grace Womack and Jean Lynch', '04/11/2021', 'Editor1'),    
-    (2, 'Old Trenton Oral History Sudol Edwards', '04/11/2021', 'Editor1'),
-    -- remove later
-    --(7, 'test', '04/11/2021', 'Editor1');
+    (2, 'Old Trenton Oral History Sudol Edwards', '04/11/2021', 'Editor1');
 
 -- create participants 
 INSERT INTO participant(p_id, fullname, e_username)
@@ -185,54 +181,43 @@ VALUES
     (2, 'IdaKlatzkin', 'Editor1'),
     (3, 'Grace Womack', 'Editor1'),
     (4, 'Jean Lynch', 'Editor1'),
-    (5, 'Sudol Edwards', 'Editor1'),
-    -- remove later
-    --(7, 'test', 'Editor1');
+    (5, 'Sudol Edwards', 'Editor1');
 
 -- create audio records
 INSERT INTO audio (audio_id, audiofile_id, date_of_recording, p_id, e_username)
 VALUES 
     (8, 8, '06/08/1988', 1, 'Editor1'),
     (1, 1, '04/14/2015', 3, 'Editor1'),
-    (2, 2, '06/09/2016', 5, 'Editor1'),
-    -- remove later
-    --(7, 7, '06/10/2015', 7, 'Editor1');
+    (2, 2, '06/09/2016', 5, 'Editor1');
 
 -- create transcribers
 INSERT INTO transcriber (t_id, fullname, e_username)
 VALUES 
     (1, 'John Smith', 'Editor1'),
     (2, 'Jane Doe', 'Editor2'),
-    (3, 'Alexandra Rizzo', 'Editor3'),
-    --remove later
-    --(7, 'test', 'Editor1');
+    (3, 'Alexandra Rizzo', 'Editor3');
 
 -- create transcriptfile records
 INSERT INTO transcriptfile (transcriptfile_id, transcript_filename, upload_date, e_username)
 VALUES 
     (8, 'Klatzkin, Joe & Ida', '4/11/2021', 'Editor1'),
     (1, 'Grace Womack and Jean Lynch 4 14 15', '4/11/2021', 'Editor1'),
-    (2, 'Sudol Edwards', '4/11/2021', 'Editor1'),
-    -- remove later
-    --(7, 'test', '4/11/2014', 'Editor1');
+    (2, 'Sudol Edwards', '4/11/2021', 'Editor1');
 
 -- create transcript records
 INSERT INTO transcript (transcript_id, transcriptfile_id, date_of_transcription, t_id, e_username)
 VALUES 
     (8, 8, '2021-04-11', 1, 'Editor1'),
     (1, 1, '2021-04-11', 1, 'Editor1'),
-    (2, 2, '2021-04-11', 2, 'Editor1'),
-    -- remove later
-    --(7, 7, '2051-52-11', 7, 'Editor1');
+    (2, 2, '2021-04-11', 2, 'Editor1');
 
 -- create entries
 INSERT INTO entry (entry_id, entry_name, audio_id, transcript_id, c_name, e_username)
 VALUES 
     (8, 'JHS 08', 8, 8, 'Jewish', 'Editor1'),
     (1, 'Old Trenton Oral History, 4-14-15', 1, 1, 'Oral History', 'Editor1'),
-    (2, 'Old Trenton Oral History Sudol Edwards', 2, 2, 'Oral History', 'Editor1'),
-    -- remove later
-    --(7, 'test', 7, 7, 'test', 'Editor1');
+    (2, 'Old Trenton Oral History Sudol Edwards', 2, 2, 'Oral History', 'Editor1');
+
 /*
 perform queries on populated database
 */
@@ -242,33 +227,12 @@ SELECT *
 FROM AUDIOFILE
 WHERE audio_filename LIKE 'Gr%';
 
--- REMOVE LATER
-\echo 'Search for audiofiles starting with "test": '
-SELECT *
-FROM AUDIOFILE
-WHERE audio_filename LIKE 'test%';
-
 \echo 'Search entries containing Jewish oral histories: '
 SELECT * 
 FROM ENTRY
 WHERE c_name IN (SELECT *
 FROM CATEGORY
 WHERE c_name LIKE 'Jew%');
-
--- REMOVE LATER
-\echo 'Search entries containing TEST: '
-SELECT * 
-FROM ENTRY
-WHERE c_name IN (SELECT *
-FROM CATEGORY
-WHERE c_name LIKE 'test%');
-
---REMOVE LATER!!!
-\echo 'Search audiofiles containing search string "test": '
-SELECT audiofile_id, audio_filename, upload_date
-FROM AUDIOFILE
-WHERE audio_filename LIKE '%test%';
-
 
 \echo 'Search audiofiles containing search string "Old": '
 SELECT audiofile_id, audio_filename, upload_date
@@ -294,9 +258,3 @@ WHERE e_username = 'Editor1';
 SELECT entry_name, c_name, e_username
 FROM ENTRY
 WHERE entry_name LIKE '%Old%';
-
--- REMOVE LATER
-\echo 'Search for entries containing string "test" in title: '
-SELECT entry_name, c_name, e_username
-FROM ENTRY
-WHERE entry_name LIKE '%test%';

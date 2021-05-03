@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/style.css') }}"/>
+	</head>
+
+    <body>
+		<h1>
+			The Trentoniana Room
+		</h1>
+    </body>
+
+	<div class="topnav">
+		<a href="/" class="active">Home</a>
+		<a href="/about">About Us</a>
+		<a href="/search">Search</a>
+		<a href="/login">Login</a>
+	</div>
+
+    <h3>
+        LOGIN<br>
+        <form action="/editor-view" method="POST">
+            <div>
+    
+            <!-- User input search string -->
+            <br><br>
+            <!-- Search <br> -->
+            <label>Username</label><br>
+            <input type ="text" name="username" placeholder="Username"/> <br><br><br>
+            <label>Password</label><br>
+            <input type ="text" name="password" placeholder="Password"/> <br>
+            <input type="submit" name="submit_login" value="Submit">
+        </form>
+        <br>
+        otherwise, continue as guest.
+    </h3>
+
+	<button onclick="goBack()">Back</button>
+	<script>
+		function goBack() {
+			window.history.back();
+		}	
+	</script>
+
+</html>

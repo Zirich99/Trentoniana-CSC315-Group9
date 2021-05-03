@@ -1,5 +1,7 @@
 #! /usr/bin/python3
 
+# This is mikes branch
+
 """
 ONE-TIME SETUP
 
@@ -52,7 +54,7 @@ https://www.geeksforgeeks.org/python-using-for-loop-in-flask/
 import psycopg2
 from config import config
 from flask import Flask, render_template, request
-    
+
 # Functions to handle user input
 def usersearch(header, rows, userstr):
     # input: rows returned from a previous query and the substring to search for
@@ -95,7 +97,7 @@ def usersearch(header, rows, userstr):
             rows = [row,] # list of rows, contains only the row with the single message item
 
     return rows
-    
+
 def usersort(usersel, reverse):
     # input: user selection of what to sort by, chosen from dropdown
     # output: rows sorted by the chosen criteria
@@ -128,10 +130,13 @@ SELECT
     PARTICIPANT.fullname AS participant,
     TRANSCRIPTFILE.transcript_filename AS transcript,
     TRANSCRIBER.fullname AS transcriber
+
 FROM ENTRY
+
 -- get category of entry
 JOIN CATEGORY
     ON ENTRY.c_name = CATEGORY.c_name
+
 -- get audio filename and participants
 JOIN AUDIO
     ON ENTRY.audio_id = AUDIO.audio_id
@@ -139,6 +144,7 @@ JOIN AUDIOFILE
     ON AUDIO.audiofile_id = AUDIOFILE.audiofile_id
 JOIN PARTICIPANT
     ON AUDIO.p_id = PARTICIPANT.p_id
+
 -- get transcript filename and transcriber
 JOIN TRANSCRIPT
     ON ENTRY.transcript_id = TRANSCRIPT.transcript_id
@@ -146,6 +152,7 @@ JOIN TRANSCRIPTFILE
     ON TRANSCRIPT.transcriptfile_id = TRANSCRIPTFILE.transcriptfile_id       
 JOIN TRANSCRIBER
     ON TRANSCRIPT.t_id = TRANSCRIBER.t_id
+
 ORDER BY {usersel} {'DESC' if reverse else 'ASC'}
 ;
         """
@@ -157,12 +164,8 @@ ORDER BY {usersel} {'DESC' if reverse else 'ASC'}
     #rows.insert(0, header)
 
     return rows, header
- 
- #This function combines the connections searching for a file name in the entry table
- #You will need to add a function for each query you want to make.
+
 def connect(query):
-    # ADDED: initialize output to None
-    #output = None
     """ Connect to the PostgreSQL database server """
     conn = None
     try:
@@ -182,15 +185,33 @@ def connect(query):
         #file_selection = "select * from entry where entry_name = '%s';" % query
 
         # execute a query using fetchall()
-        print('Test1', '*' *50)
+
+        print((20 * "-") + ("USER-ENTERED QUERY") + (20 * "-"))
+        print(query)
+        print((20 * "-") + (len("USER-ENTERED QUERY")*"-") + (20 * "-"))
+
         cur.execute(query)
-        print('Test2', '*' *50)
-        #output= cur.fetchone()
-        #while output is not None:
-        #    print(output)
-        #    output = DBCursor.fetchone()
-        rows = cur.fetchall()
-        print('Test3', '*' *50)
+
+        if 'DELETE' in query.upper():
+            
+            num_rows_deleted = cur.rowcount
+            if num_rows_deleted > 0:
+                rows = [(f"The following query was run:\n{query} deleted {num_rows_deleted} rows",)]
+            else:
+                rows = [("There was nothing to delete",)]
+
+            conn.commit()
+        elif 'INSERT' in query.upper():
+            num_rows_updated = cur.rowcount
+            if num_rows_updated > 0:
+                rows = [(f"The following query was run:\n{query} updated {num_rows_updated} rows",)]
+            else: 
+                rows = [("Nothing was inserted",)]
+        elif 'UPDATE' in query.upper():
+            # 
+            pass
+        else:
+            rows = cur.fetchall()
 
        # close the communication with the PostgreSQL
         cur.close()
@@ -201,134 +222,192 @@ def connect(query):
             conn.close()
             print('Database connection closed.')
     # return the query result from fetchall()
-
-    #return output
     return rows
  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # app.py
 
 app = Flask(__name__)
 
-
-# serve form web page
+# serve homepage when user enters site
 @app.route("/")
-def form():
-    return render_template('my-form.html')
+def home_page():
+    return render_template('home.html')
+
+@app.route('/about', methods=['POST', 'GET'])
+def about_page():
+    if request.method == 'POST':
+        return 'whats this page?'
+    elif request.method == 'GET':
+        return render_template('about.html')
+
+@app.route('/login', methods=['POST', 'GET'])
+def login_page():
+    if request.method == 'POST':
+        return 'so this is the login page'
+    elif request.method == 'GET':
+        return render_template('login.html')
+
+@app.route('/editor-view', methods=['POST', 'GET'])
+def editor_page():
+    if request.method == 'POST':
+        # handle login.html
+        if 'submit_login' in request.form:
+            username = request.form['username']
+            password = request.form['password']
+            query = f"""
+                SELECT
+                    e_username, 
+                    e_password
+                FROM EDITOR 
+                WHERE
+                    e_username='{username}' AND
+                    e_password='{password}'
+                ;
+            """.strip()
+
+            rows = connect(query)
+            if rows:
+                return render_template('editor.html')
+            else:
+                rows = [("Invalid login information",)]
+                return render_template('user-result.html',rows=rows)
+
+    elif request.method == 'GET':
+        return 'i shouldnt be here'
+
+@app.route('/delete-result', methods=['POST'])
+def delete_results_page(): # handle editor.html
+    if 'submit_delete' in request.form:
+        print('I GOT HERE')
+        userdel = request.form['delete'] # get name of entry user wants to delete
+        
+        query = f"DELETE FROM ENTRY WHERE entry_name = %s;"
+        rows = connect(query)
+
+        return render_template('user-result.html', rows=rows)
+
+#INSERT ROUTE
+@app.route('/insert-synopsis', methods=['POST'])
+def insert_synopsis_page():
+    if 'submit_add' in request.form:
+        userinser = request.form['insert-syn']
+
+        query = f"INSERT INTO SYNOPSIS(file_id) VALUES ('{userinser}');"
+        rows = connect(query)
+
+        return render_template('user-result.html', rows=rows)
+
+@app.route('/insert-transcript', methods=['POST'])
+def insert_transcript_page():
+    if 'submit_add' in request.form:
+        userinser = request.form['insert-transcript']
+
+        query = f"INSERT INTO TRANSCRIPT(file_id) VALUES ('{userinser}');"
+        rows = connect(query)
+
+        return render_template('user-result.html', rows=rows)
+
+@app.route('/insert-audio', methods=['POST'])
+def insert_audio_page():
+    if 'submit_add' in request.form:
+        userinser = request.form['insert-audio']
+
+        query = f"INSERT INTO AUDIO(file_id, date_of_recording) VALUES ('{userinser}');"
+        rows = connect(query)
+
+        return render_template('user-result.html', rows=rows)
+
+@app.route('/insert-participant', methods=['POST'])
+def insert_participant_page():
+    if 'submit_add' in request.form:
+        userinser = request.form['insert-participant']
+
+        query = f"INSERT INTO PARTICIPANT(fullname, audio) VALUES ('{userinser}');"
+        rows = connect(query)
+
+        return render_template('user-result.html', rows=rows)
+
+@app.route('/insert-entry', methods=['POST'])
+def insert_entry_page():
+    if 'submit_add' in request.form:
+        userinser = request.form['insert-entry']
+
+        query = f"INSERT INTO ENTRY(entry_id, audio, tramscript, synopsis) VALUES ('{userinser}');"
+        rows = connect(query)
+
+        return render_template('user-result.html', rows=rows)
+
+@app.route('/insert-topic', methods=['POST'])
+def insert_topic_page():
+    if 'submit_add' in request.form:
+        userinser = request.form['insert-topic']
+
+        query = f"INSERT INTO TOPIC(topic, entry) VALUES ('{userinser}');"
+        rows = connect(query)
+
+        return render_template('user-result.html', rows=rows)
 
 # handle form data
-@app.route('/form-handler', methods=['POST'])
-def handle_data():
-    # error field
-    error = None
-    # user input fields
-    user_login = request.form['username']
-    user_password = request.form['password']
-    
-    #Final query
-    query = f"SELECT e_username, e_password FROM EDITOR WHERE e_username LIKE '{user_login}' AND e_password LIKE '{user_password}'"
-    
-    #Perform the query
-    result = connect(query)
-    
-    if result == []:
-        error = 'Invalid username or password'
-        print("ERROR!")
-        return render_template('my-form.html', error=error)
-    else:
-        print("CORRECT!")
-        return render_template('editor-dashboard.html', result=result)
-    
-#Router for the dashboard
-@app.route("/dashboard", methods=['GET', 'POST'])
-def dashboard():
+@app.route('/search', methods=['POST', 'GET']) # the page the this function leads to 
+def search_page():
+
+    if request.method == 'POST':
+        return 'hello world'
+    elif request.method == 'GET':
+        return render_template('search.html')
+
+@app.route('/search-result', methods=['POST'])
+def search_results_page(): # handle index.html
     if 'submit_search' in request.form: #or 'submit_sort' in request.form:
-        print("Search request received")
+        
         usersel = request.form['sort'] # get user sort selection
-        print("User sort")
         userrev = True if 'reverse' in request.form else False
         sorted_rows, header = usersort(usersel, userrev) # sort db
         userstr = request.form['search'] # get user search string
-        print("Found user string")
-        rows = usersearch(header, sorted_rows, userstr) 
-        return render_template('my-result.html', rows=rows)
-        
-    return render_template('editor-dashboard.html')
+        rows = usersearch(header, sorted_rows, userstr)
 
-# Route to get to insertion page
-@app.route('/insert-entry', methods=['POST'])
-def insert_page():
-    # user input fields
-    insert_ = request.form['insert']
-    #insert_value = 
-    #Final query
-    query = f"INSERT INTO '{user_insert}' VALUES '{user_insert}"
-    #Perform the query
-    result = connect(query)
-    
-    if result == []:
-        error = 'Invalid insertion'
-        print("ERROR!")
-        return render_template('editor-dashboard.html', error=error)
-    else:
-        print("CORRECT!")
-        return render_template('editor-insert.html', result=result)
+        return render_template('user-result.html', rows=rows)
 
-
-#delete function instead of connect
-def deleton(query):
-    conn = None
-    rows_deleted = 0
-    try:
-        #read connection parameters from database.ini
-        params = config()
-        
-        #connect to the PostgreSQL server
-        print('Connecting to the %s database...' % (params['database']))
-        conn = psycopg2.connect(**params)
-        print('4 new test hi')
-        print('Connected.')
-
-        #create a cursor
-        cur = conn.cursor()
-        print('5 test hey')
-
-        #execute the DELETE statement
-        cur.execute("DELETE FROM entry WHERE entry_name LIKE %s", (query))
-
-        #get the number of updated rows
-        rows_deleted = cur.rowcount
-        print('6 TEST')
-
-        #commit the changes to the database
-        conn.commit()
-
-        #Close communication with PostgreSQL database
-        cur.close()
-    except (Exception, psycopg2.DatabaseError) as error:
-        print(error)
-    finally:
-        if conn is not None:
-            conn.close()
-    return rows_deleted
-
-
-@app.route('/delete-entry', methods=['POST'])
-def delete():
-    #User input to delete
-    delete_entry = request.form['delete']
-    #Query
-    #query = f"DELETE FROM ENTRY WHERE entry_name LIKE '{delete_entry}'"
-    query = [delete_entry]
-    #Perform query
-    deleton(query)
-    if delete_entry =="":
-        error = 'Invalid entry, please try again.'
-        return render_template('editor-dashboard.html', error=error)
-    else:
-        return render_template('editor-deletion.html', delete_entry=delete_entry)
-
-
-#ex DELETE FROM "" WHERE gbfs='vda';
 
 if __name__ == '__main__':
     app.run(debug = True)
+
+    # in case of:
+    # OSError: [Errno 98] Address already in use
+    # do the following:
+    # $ ps -fA | grep python3
+    # $ kill -9 pid
+    #   where pid is the pid of the orhpaned Flask process
+    # $ export FLASK_APP=app.py && flask run
+    # localhost:5000 should be working again
+
+
+
+'''
+might make use of this later
+
+tables = (', ').join(request.form.getlist("search_substr"))
+    if tables != '':
+
+        # final query
+        query = f"SELECT * FROM {tables};"
+
+        # perform query
+        rows = connect(query)
+    else:
+        rows = []'''

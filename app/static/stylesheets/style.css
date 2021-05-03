@@ -1,0 +1,45 @@
+:root {
+    --trent-red:rgb(109, 33, 33);
+    --trent-white:rgb(242, 251, 255);
+    --trent-grey: #333;
+    --trent-black:rgb(31, 31, 31);
+}
+
+body {
+    background-color: var(--trent-red);
+    color: var(--trent-white);
+    text-align:center;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+/* Add a black background color to the top navigation */
+.topnav {
+    background-color: var(--trent-grey);
+    overflow: hidden;
+}
+
+/* Style the links inside the navigation bar */
+.topnav a {
+    float: left;
+    color: var(--trent-white);
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+}
+
+/* Change the color of links on hover */
+.topnav a:hover {
+    background-color: var(--trent-black);
+    color: var(--trent-white);
+}
+
+/* Add a color to the active/current link */
+.topnav a.active {
+    background-color: var(--trent-black);
+    color: var(--trent-white);
+}
+
+div {
+    margin: 1% 0;
+}
