@@ -17,8 +17,10 @@
 		<a href="/search"  class="active">Search</a>
 		<a href="/login">Login</a>
 		<a href="/map">Map</a>
-		<a href="https://trentonlib.org/trentoniana/">Trentoniana Homepage</a>
 	</div>
+
+	<h1>Search the Archives</h1>
+	<br><br>
 
 	<form action="/search-result" method="POST">
 		<div>
@@ -26,7 +28,6 @@
 		<!-- SORT DROPDOWN -->
 
 		Sort by
-		<br>
 		<select name="sort">
 			<option value="(SELECT NULL)">None</option>
 			<option value="ENTRY.entry_name">Title</option>
@@ -42,12 +43,11 @@
 		<!-- SEARCH BOX -->
 		<br><br>
 		Search for
-		<br>
 		<input type ="text" name="search" placeholder="Search..."/>
 		<input type="submit" name="submit_search" value="🔍︎">
 
 	</form>
-	<br><br>
+	<br><br><br><br>
 	<button onclick="goBack()">Back</button>
 	<script>
 		function goBack() {

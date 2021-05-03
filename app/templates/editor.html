@@ -17,7 +17,6 @@
 		<a href="/search">Search</a>
 		<a href="/login">Login</a>
 		<a href="/map">Map</a>
-		<a href="https://trentonlib.org/trentoniana/">Trentoniana Homepage</a>
 	</div>
 
     <form action="/search-result" method="POST">
@@ -27,7 +26,6 @@
         <!-- SORT DROPDOWN -->
 
         Sort by
-        <br>
         <select name="sort">
             <option value="(SELECT NULL)">None</option>
             <option value="ENTRY.entry_name">Title</option>
@@ -42,7 +40,6 @@
         <!-- Search Box -->
         <br><br>
         Search for
-        <br>
         <input type ="text" name="search" placeholder="Search..."/>
         <input type="submit" name="submit_search" value="🔍︎">
         <br><br>
@@ -51,24 +48,19 @@
 
 
     <!-- Insert -->
+    <!--
     <h3>Add an Entry</h3>
     <form method="POST" action="/insert-entry">
         <input type ="text" name="insert" placeholder="Add"/><br>
         <input type="submit" name="submit_add"><br><br>
     </form>
-
-    <!--Delete -->
-    <h3>Delete an Entry</h3>
-    <form method="POST" action="/delete-result">
-        <input type ="text" name="delete" placeholder="Delete"/><br>
-        <input type="submit" name="submit_delete" value="Submit to Delete"><br><br>
-    </form>
+    -->
 
     <!-- Update -->
    <!-- Update -->
-    <h3>Update an Entry</h3>
+    <h2>Update an Entry</h2>
     <form method="POST" action="/update-result">
-        <h4>Select the table you would like to update.</h4>
+        Table to update
         <select name="table_select">
             <option value="ENTRY">Entry</option>
             <option value="AUDIOFILE">Audio File</option>
@@ -79,7 +71,9 @@
             <option value="CATEGORY">Category</option>
             <option value="TRANSCRIBER">Transcriber</option>
         </select>
-        <h4>Select the attribute you would like to change.</h4>
+        <br>
+
+        Column you would like to update
         <select name="attribute_select">
             <option value="entry_name">Entry Filename</option>
             <option value="audio_filename">Audio Filename</option>
@@ -90,14 +84,26 @@
             <option value="c_name">Entry Categories</option>
             <option value="fullname">Transcriber Name</option>
         </select>
-        <h4>Input the ID of the entry you would like to update</h4>
+        <br>
+
+        Identifier of row to update
         <input type="text" name="entry_id" placeholder="Entry ID"/><br>
-        <h4>Input the value of the entry you would like to update.</h4>
-        <input type="text" name="table_value" placeholder="Table Value"/><br>
-        <h4>Include the new value for the entry.</h4>
+        New value 
         <input type="text" name="new_value" placeholder="New Value"><br>
+        <br>
         <input type="submit" name="submit_update" value="Submit to Update"><br><br>
     </form>
+
+    <!--Delete -->
+    <h2>Delete an Entry</h2>
+    <form method="POST" action="/delete-result">
+        Identifier of row to delete
+        <input type ="text" name="delete" placeholder="Delete"/><br>
+        <br>
+        <input type="submit" name="submit_delete" value="Submit to Delete"><br><br>
+    </form>
+
+    <br><br>
 
 	<button onclick="goBack()">Back</button>
 	<script>
