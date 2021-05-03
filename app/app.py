@@ -330,6 +330,19 @@ def update_results_page():
         #Default template render
         return render_template('user-result.html', rows=rows)
 
+@app.route('/insert-result', methods=['POST'])
+def insert_results_page():
+    if 'submit_insert' in request.form:
+        row = []
+        row += [request.form['insert_entry_name']]
+        row +=[ request.form['insert_c_name']]
+        row +=  [request.form['insert_audio_file']]
+        row +=  [request.form['insert_part']]
+        row += [ request.form['insert_trans_file']]
+        row += [ request.form['insert_trans']]
+        rows = [row]
+        return render_template('user-result.html', rows=rows)
+
 # handle form data
 @app.route('/search', methods=['POST', 'GET']) # the page the this function leads to 
 def search_page():
