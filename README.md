@@ -2,8 +2,13 @@
 Group Members: Michael Mongelli, Zach Rich, Ashley Bennett, Alexandra Rizzo
 
 ## Project Description
-This is a web application developed in conjunction with a SQL table that allows users to search data by a variety of parameters.
-A login functionality was also implemented that allows privileged users to insert, update and delete entries from the database.
+Trentoniana is a project designed to provide the Trenton Public Library with a database for storing its audio and video files, however it is
+designed to be implemented within any public or private library.
+The application is a web server implemented via Python, PostgreSQL and Flask to allow users to view and modify the audio and video entries of the database.
+
+The application allows visitors to search for entries in the database on a variety of parameters, including but not limited to entry name, topics discussed, participant name, and more. The user can also access various links connected to the Trentoniana website and other useful sources that will allow for the user to get full background on the material stored in this database.
+
+Also included in our application are two user types: an editor and administrator. Both of these users can insert, modify, and delete entries from the database, in addition to the functions permitted for all users. The administrators are also allowed to assign new editors to the webpage, with the privilege to delete editors for any circumstance.
 
 ## Current Bugs/Limitations
 The user must manually copy and paste each of the links provided in a search result to access the appropriate file.
